@@ -7,6 +7,7 @@ import { SITE_CONFIG } from "@/config";
 import { Metadata } from "next";
 import JsonLd from "@/components/schema/JsonLd";
 import BookingModal from "@/components/booking/BookingModal";
+import { Toaster } from "sonner"
 
 const { metadataInfo } = SITE_CONFIG
 
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
     url: metadataInfo.openGraph.url, 
     siteName: metadataInfo.openGraph.siteName,
     locale: metadataInfo.openGraph.locale,
-    type: metadataInfo.openGraph.type,
+    type: metadataInfo.openGraph.type as "website",
     images: metadataInfo.openGraph.images.map(image => ({
         url: image.url,
         width: image.width,
@@ -91,6 +92,7 @@ export default function RootLayout({
             <BookingModal/>
             <Navbar />
               {children}
+              <Toaster />
             <Footer />
           </BackgroundSelector>
       </body>

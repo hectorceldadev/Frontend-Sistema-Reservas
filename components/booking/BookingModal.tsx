@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { X, CalendarDays, ChevronLeft, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format, getDay } from 'date-fns'
+import { toast } from 'sonner'; // <--- 1. IMPORTAMOS SONNER
 
 // IMPORTS DE LOS PASOS
 import StepService from './StepService';
@@ -79,6 +80,42 @@ export default function BookingModal() {
     paymentMethod: null,
   });
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedData = localStorage.getItem('booking_client_info')
+      
+      if (savedData) {
+        try {
+          const { name, email, phone } = JSON.parse(savedData)
+          setBooking(prev => ({
+            ...prev, 
+            client: {
+              ...prev.client!,
+              name: name || '',
+              email: email || '',
+              phone: phone || '',
+              comment: ''
+            }
+          }))
+        } catch (err) {
+          console.error('Error leyendo localStorage: ' + err)
+        }
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+
+    if (booking.client) {
+      const { name, email, phone } = booking.client
+
+      if (name || email || phone) {
+        localStorage.setItem('booking_client_info', JSON.stringify({ name, email, phone }))
+      }
+    }
+
+  }, [booking.client])
+
   const BUSINESS_ID = 'b0880124-97ad-4560-8542-fbc31ff46a8f'
 
   useEffect(() => {
@@ -106,6 +143,7 @@ export default function BookingModal() {
       }
       catch (error) {
         console.error('Error cargando datos: ' + error)
+        toast.error('Error al cargar los datos del negocio') // <--- AÑADIDO TOAST ERROR
       }
       finally {
         setIsLoading(false)
@@ -142,6 +180,7 @@ export default function BookingModal() {
       }
       catch (error) {
         console.error('Error buscando huecos: ' + error)
+        toast.error('No se pudieron cargar los horarios disponibles') // <--- AÑADIDO TOAST ERROR
       }
       finally {
         setLoadingAviability(false)
@@ -174,18 +213,19 @@ export default function BookingModal() {
 
   const handleClose = () => {
     setIsOpen(false);
-    // Resetear formulario tras cerrar la animación (500ms)
-    setTimeout(() => {
-      setStep(1);
-      setBooking({
-        services: [],
-        staff: null,
-        date: undefined,
-        time: null,
-        client: null,
-        paymentMethod: null,
-      });
-    }, 500);
+    if (step === 6) {
+      setTimeout(() => {
+        setStep(1);
+        setBooking(prev => ({
+            services: [],
+            staff: null,
+            date: undefined,
+            time: null,
+            client: prev.client, // <--- CLAVE: Mantenemos los datos del cliente
+            paymentMethod: null,
+        }));
+      }, 500)
+    }
   };
 
   // VALIDACIÓN DE CADA PASO
@@ -368,18 +408,19 @@ export default function BookingModal() {
 
       if (booking.paymentMethod === 'card') {
         //* CONFIGURAR STRIPE CONNECT
-        alert('Redirigiendo a Stripe') 
+        toast.info('Redirigiendo a Stripe...') // <--- TOAST INFO
       } else {
+        toast.success('¡Reserva confirmada correctamente!') // <--- TOAST SUCCESS
         setStep(6)
       }
     } catch (err) {
       //* REEMPLAZAR ALERT POR TOAST
       console.error(err)
-      alert('Error: ' + (err || err))
+      toast.error('Error al procesar la reserva: ' + err) // <--- TOAST ERROR
     } finally {
       setIsLoading(false)
     } 
-}
+  }
 
   return (
     <>
@@ -493,6 +534,3 @@ export default function BookingModal() {
     </>
   );
 }
-
-
-

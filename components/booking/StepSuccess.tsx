@@ -1,9 +1,8 @@
 'use client';
 
-import { Check, Calendar, MapPin, Download } from 'lucide-react';
+import { Check, Calendar, MapPin, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
 import { Booking } from './BookingModal';
 
 interface StepSuccessProps {
@@ -13,22 +12,36 @@ interface StepSuccessProps {
 
 export default function StepSuccess({ booking, onClose }: StepSuccessProps) {
   
-  // Generar enlace de Google Calendar
+  // Generar enlace de Google Calendar ROBUSTO
   const googleCalendarUrl = () => {
     if (!booking.date || !booking.time) return '#';
     
-    // Convertir fecha y hora a formato YYYYMMDDTHHMMSS
-    // Esto es simplificado. En producción usarías una librería para manejar zonas horarias.
-    const startTime = booking.time.replace(':', ''); 
-    const dateStr = format(booking.date, 'yyyyMMdd');
-    const startDateTime = `${dateStr}T${startTime}00`;
-    const endDateTime = `${dateStr}T${parseInt(startTime) + 100}00`; // +1 hora aprox
+    // 1. Configurar Fecha de Inicio
+    const [hours, minutes] = booking.time.split(':').map(Number);
+    const startDate = new Date(booking.date);
+    startDate.setHours(hours, minutes, 0);
 
-    const title = encodeURIComponent("Cita en Barbería Estilo");
-    const details = encodeURIComponent(`Servicios: ${booking.services.map((s:any) => s.name).join(', ')}`);
-    const location = encodeURIComponent("Calle Falsa 123, Madrid");
+    // 2. Calcular Fecha de Fin Real (Sumando duración de servicios)
+    const totalDuration = booking.services.reduce((acc, s) => acc + s.duration, 0);
+    const endDate = new Date(startDate.getTime() + totalDuration * 60000); // 60000ms = 1 min
 
-    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startDateTime}/${endDateTime}&details=${details}&location=${location}`;
+    // 3. Formatear para Google (YYYYMMDDTHHMMSS)
+    // El .toISOString() devuelve formato UTC (Z), Google lo prefiere así o local sin Z.
+    // Para simplificar y asegurar hora local del negocio, quitamos guiones y dos puntos.
+    // Usamos una función simple para formatear a string "YYYYMMDDTHHmmSS"
+    const formatDateForGoogle = (date: Date) => {
+        return date.toISOString().replace(/-|:|\.\d\d\d/g, "");
+    };
+
+    const startStr = formatDateForGoogle(startDate);
+    const endStr = formatDateForGoogle(endDate);
+
+    const title = encodeURIComponent("Cita en Barbería Estilo"); //* COLOCAR TITULO INDEX
+    // CORRECCIÓN: Usamos s.title en lugar de s.name
+    const details = encodeURIComponent(`Servicios: ${booking.services.map(s => s.title).join(', ')}`);
+    const location = encodeURIComponent("Calle Falsa 123, Madrid"); //* COLOCAR DIRECCIÓN INDEX
+
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startStr}/${endStr}&details=${details}&location=${location}&sf=true&output=xml`;
   };
 
   return (
@@ -76,16 +89,16 @@ export default function StepSuccess({ booking, onClose }: StepSuccessProps) {
                     <MapPin size={20} />
                 </div>
                 <div>
-                     <p className="text-xs text-muted font-bold uppercase">Ubicación</p>
-                     <p className="font-bold text-sm text-foreground">Barbería Estilo</p>
-                     <p className="text-xs text-muted">Calle Falsa 123, Madrid</p>
+                      <p className="text-xs text-muted font-bold uppercase">Ubicación</p>
+                      <p className="font-bold text-sm text-foreground">Barbería Estilo</p>
+                      <p className="text-xs text-muted">Calle Falsa 123, Madrid</p>
                 </div>
             </div>
         </div>
       </div>
 
       {/* BOTONES DE ACCIÓN */}
-      <div className="flex flex-col w-full max-w-sm gap-2 md:gap-2">
+      <div className="flex flex-col w-full max-w-sm gap-3">
         <a 
             href={googleCalendarUrl()}
             target="_blank"
@@ -98,9 +111,9 @@ export default function StepSuccess({ booking, onClose }: StepSuccessProps) {
 
         <button 
             onClick={onClose}
-            className="w-full bg-foreground text-background hover:bg-foreground/90 py-3.5 rounded-xl font-bold shadow-lg transition-all"
+            className="w-full bg-foreground text-background hover:bg-foreground/90 py-3.5 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-2"
         >
-            Entendido, ¡gracias!
+            Entendido, ¡gracias! <ArrowRight size={18} />
         </button>
       </div>
 
