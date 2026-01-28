@@ -406,6 +406,25 @@ export default function BookingModal() {
 
       if (itemsError) throw itemsError
 
+      if (booking.paymentMethod !== 'card') {
+        const serviceNames = booking.services.map(s => s.title)
+
+        await fetch('api/emails', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customerName: booking.client.name,
+            email: booking.client.email,
+            date: format(booking.date, 'dd/MM/yyyy'),
+            time: booking.time,
+            services: serviceNames, // Pasamos la lista simple
+            price: totalPrice,
+            staffName: booking.staff.full_name, // Ojo, asegurate de tener el nombre
+            bookingId: newBooking.id
+          })
+        })
+      }
+
       if (booking.paymentMethod === 'card') {
         //* CONFIGURAR STRIPE CONNECT
         toast.info('Redirigiendo a Stripe...') // <--- TOAST INFO
