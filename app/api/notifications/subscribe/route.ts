@@ -1,0 +1,34 @@
+import { createClient } from "@supabase/supabase-js"
+import { NextResponse } from "next/server"
+
+export async function POST (request: Request) {
+    try {
+        const { subscription, email, userAgent, customerId } = await request.json() 
+
+        if (!subscription || !email) {
+            return NextResponse.json({ error: 'Faltan datos' }, { status: 400 })
+        }
+
+        const supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!
+        )
+
+        const { error } = await supabaseAdmin.from('push_subscriptions').upsert({
+            user_email: email,
+            user_agent: userAgent,
+            customer_id: customerId,
+            subscription: subscription
+        }, { onConflict: 'user_email, subscription' })
+
+        if (error) {
+            console.error('Supabase error: ', error)
+            return NextResponse.json({ error }, { status: 500 })
+        } 
+
+        return NextResponse.json({ success: true })
+    } catch (error: any) {
+        console.error('Error en API Subscribe: ', error)
+        return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+}

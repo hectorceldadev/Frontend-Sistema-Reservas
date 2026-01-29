@@ -64,6 +64,7 @@ export default function BookingModal() {
   const [schedules, setSchedules] = useState<StaffSchedule[] | []>([])
   const [busySlots, setBusySlots] = useState<BusySlot[] | []>([])
   const [loadingAviability, setLoadingAviability] = useState<boolean>(false)
+  const [ confirmedCustomerId, setConfirmedCustomerId ] = useState<string | null>(null)
 
   // Referencia para el contenedor del scroll
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -366,6 +367,8 @@ export default function BookingModal() {
           customerId = newCustomer.id
       }
 
+      setConfirmedCustomerId(customerId)
+
       const [ hours, minutes ] = booking.time.split(':').map(Number)
       const startTime = new Date(booking.date)
       startTime.setHours(hours, minutes, 0)
@@ -409,7 +412,7 @@ export default function BookingModal() {
       if (booking.paymentMethod !== 'card') {
         const serviceNames = booking.services.map(s => s.title)
 
-        await fetch('api/emails', {
+        await fetch('/api/emails', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -423,6 +426,17 @@ export default function BookingModal() {
             bookingId: newBooking.id
           })
         })
+
+        fetch('/api/notifications/send', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            email: booking.client.email,
+            title: '✅ ¡Reserva Confirmada!',
+            message: `Hola ${booking.client.name}, tu cita es el ${format(booking.date, 'dd/MM')} a las ${booking.time}.`,
+            url: window.location.origin //* AQUI PODRIAMOS PLANTEAR LA IDEA DE SITIO FANTASMA 
+          })
+        }).catch(err => console.error('Error enviando push: ', err))
       }
 
       if (booking.paymentMethod === 'card') {
@@ -505,7 +519,7 @@ export default function BookingModal() {
                 {step === 5 && <StepPayment booking={booking} setBooking={setBooking} />}
 
                 {/* PANTALLA FINAL */}
-                {step === 6 && <StepSuccess booking={booking} onClose={handleClose} />}
+                {step === 6 && <StepSuccess booking={booking} onClose={handleClose} customerId={confirmedCustomerId ? confirmedCustomerId : ''} />}
               </div>
             </div>
 

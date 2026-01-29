@@ -4,13 +4,15 @@ import { Check, Calendar, MapPin, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Booking } from './BookingModal';
+import PushNotificationManager from '../push/PushNotificationManager';
 
 interface StepSuccessProps {
   booking: Booking;
   onClose: () => void;
+  customerId: string
 }
 
-export default function StepSuccess({ booking, onClose }: StepSuccessProps) {
+export default function StepSuccess({ booking, onClose, customerId }: StepSuccessProps) {
   
   // Generar enlace de Google Calendar ROBUSTO
   const googleCalendarUrl = () => {
@@ -58,6 +60,8 @@ export default function StepSuccess({ booking, onClose }: StepSuccessProps) {
       <p className="text-muted text-lg max-w-xs mx-auto mb-8">
         Gracias <span className="text-foreground font-semibold">{booking.client?.name}</span>, revisa tu correo electrónico.
       </p>
+
+      <PushNotificationManager customerId={customerId} email={booking.client?.email || ''} booking={booking} />
 
       {/* TICKET RESUMEN */}
       <div className="bg-background-secondary w-full max-w-sm rounded-2xl p-6 border border-foreground/5 shadow-sm mb-8 text-left relative overflow-hidden">

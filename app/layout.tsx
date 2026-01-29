@@ -4,16 +4,34 @@ import { Footer } from "@/components/Footer";
 import BackgroundSelector from "@/components/backgrounds/BackgroundSelector";
 import { Anton, Geist, Lato, Open_Sans, Oswald, Playfair_Display } from "next/font/google";
 import { SITE_CONFIG } from "@/config";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 import JsonLd from "@/components/schema/JsonLd";
 import BookingModal from "@/components/booking/BookingModal";
 import { Toaster } from "sonner"
 
 const { metadataInfo } = SITE_CONFIG
 
+export const viewport: Viewport = {
+  themeColor: 'black',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false
+}
+
 export const metadata: Metadata = {
   title: metadataInfo.title.default, 
   description: metadataInfo.description,
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Barberia Estilo',
+    startupImage: [] //**COLOCAR IMAGENES  */
+  },
+  formatDetection: {
+    telephone: false
+  },
   metadataBase: new URL(metadataInfo.siteUrl),
   keywords: metadataInfo.keywords,
   openGraph: {
