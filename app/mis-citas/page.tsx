@@ -149,7 +149,7 @@ export default function MyBookingsPage() {
 
   return (
     <div className="min-h-screen pb-20 font-sans">
-      
+
       {/* HEADER */}
       <div className="sticky top-0 z-20 px-6 py-4 flex items-center gap-4">
         <Link href="/" className="p-2 -ml-2 rounded-full hover:bg-gray-100 text-foreground/80 transition-colors">
@@ -162,7 +162,7 @@ export default function MyBookingsPage() {
       </div>
 
       <div className="max-w-md mx-auto px-5 space-y-8 mt-4">
-        
+        {/* <div className={`absolute top-4 left-1/2 -translate-x-1/2 w-[50%] md:w-[60%] h-100 bg-primary/10 rounded-full blur-3xl z-0 pointer-events-none`} /> */}
         {/* BUSCADOR */}
         <div className="relative group">
             <div className="relative bg-background-secondary p-1.5 rounded-2xl shadow-sm border border-foreground/10 flex items-center">
