@@ -94,12 +94,12 @@ export default function MyBookingsPage() {
   const pastBookings = bookings.filter(b => b.date <= '2024-01-01' || b.status === 'cancelled');
 
   return (
-    <div className="min-h-screen pt-24 pb-20 font-sans">
+    <div className="min-h-screen pb-20 font-sans">
       
       {/* HEADER */}
-      <div className="sticky top-0 px-4 pt-4 flex items-center justify-between">
-        <h1 className="font-title text-xl font-bold text-foreground">Mis Citas</h1>
-        <Link href="/" className="text-sm font-medium text-muted hover:text-foreground transition-colors px-3 py-2 rounded-lg hover:bg-gray-100">
+      <div className="bg-background border-b border-foreground/20 sticky top-0 z-10 px-4 py-4 flex items-center justify-between shadow-sm">
+        <h1 className="font-title text-2xl font-bold text-foreground">Mis Citas</h1>
+        <Link href="/" className="text-md font-medium text-muted hover:text-foreground transition-colors px-3 py-2 rounded-lg hover:bg-gray-100">
             ← Volver
         </Link>
       </div>

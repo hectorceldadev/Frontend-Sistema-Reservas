@@ -1,13 +1,11 @@
-import Navbar from "@/components/NavBar";
 import "./globals.css";
-import { Footer } from "@/components/Footer";
 import BackgroundSelector from "@/components/backgrounds/BackgroundSelector";
 import { Anton, Geist, Lato, Open_Sans, Oswald, Playfair_Display } from "next/font/google";
 import { SITE_CONFIG } from "@/config";
 import { Metadata, Viewport } from "next";
 import JsonLd from "@/components/schema/JsonLd";
-import BookingModal from "@/components/booking/BookingModal";
 import { Toaster } from "sonner"
+import BookingModal from "@/components/booking/BookingModal";
 
 const { metadataInfo } = SITE_CONFIG
 
@@ -93,11 +91,7 @@ const openSans = Open_Sans({
   display: 'swap'
 })
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
       <body
@@ -106,13 +100,11 @@ export default function RootLayout({
         data-font={SITE_CONFIG.design.typography}
       >
         <JsonLd />
-          <BackgroundSelector >
-            <BookingModal/>
-            <Navbar />
-              {children}
-              <Toaster />
-            <Footer />
-          </BackgroundSelector>
+        <BackgroundSelector >
+          <BookingModal />
+          {children}
+          <Toaster />
+        </BackgroundSelector>
       </body>
     </html>
   );
