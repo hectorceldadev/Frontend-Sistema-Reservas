@@ -1,123 +1,105 @@
 'use client';
 
-import { Check, Calendar, MapPin, ArrowRight } from 'lucide-react';
+import { Check, ArrowRight } from 'lucide-react'; // Quitamos imports no usados
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Booking } from './BookingModal';
 import PushNotificationManager from '../push/PushNotificationManager';
+import { generateGoogleCalendarUrl, downloadIcsFile } from '@/lib/calendar';
 
 interface StepSuccessProps {
   booking: Booking;
   onClose: () => void;
-  customerId: string
+  customerId: string;
 }
 
 export default function StepSuccess({ booking, onClose, customerId }: StepSuccessProps) {
-  
-  // Generar enlace de Google Calendar ROBUSTO
-  const googleCalendarUrl = () => {
-    if (!booking.date || !booking.time) return '#';
-    
-    // 1. Configurar Fecha de Inicio
-    const [hours, minutes] = booking.time.split(':').map(Number);
-    const startDate = new Date(booking.date);
-    startDate.setHours(hours, minutes, 0);
-
-    // 2. Calcular Fecha de Fin Real (Sumando duración de servicios)
-    const totalDuration = booking.services.reduce((acc, s) => acc + s.duration, 0);
-    const endDate = new Date(startDate.getTime() + totalDuration * 60000); // 60000ms = 1 min
-
-    // 3. Formatear para Google (YYYYMMDDTHHMMSS)
-    // El .toISOString() devuelve formato UTC (Z), Google lo prefiere así o local sin Z.
-    // Para simplificar y asegurar hora local del negocio, quitamos guiones y dos puntos.
-    // Usamos una función simple para formatear a string "YYYYMMDDTHHmmSS"
-    const formatDateForGoogle = (date: Date) => {
-        return date.toISOString().replace(/-|:|\.\d\d\d/g, "");
-    };
-
-    const startStr = formatDateForGoogle(startDate);
-    const endStr = formatDateForGoogle(endDate);
-
-    const title = encodeURIComponent("Cita en Barbería Estilo"); //* COLOCAR TITULO INDEX
-    // CORRECCIÓN: Usamos s.title en lugar de s.name
-    const details = encodeURIComponent(`Servicios: ${booking.services.map(s => s.title).join(', ')}`);
-    const location = encodeURIComponent("Calle Falsa 123, Madrid"); //* COLOCAR DIRECCIÓN INDEX
-
-    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startStr}/${endStr}&details=${details}&location=${location}&sf=true&output=xml`;
-  };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full text-center animate-in zoom-in-95 duration-500 p-4 stagger-container">
+    <div className="flex flex-col h-full overflow-hidden stagger-container">
       
-      {/* ICONO ANIMADO */}
-      <div className="w-20 h-20 bg-foreground rounded-full flex items-center justify-center mb-6 animate-in slide-in-from-bottom-5 delay-100 duration-700">
-        <Check size={44} className="text-primary animate-in zoom-in duration-300 delay-300" strokeWidth={3} />
+      {/* 1. HEADER (Más aireado) */}
+      <div className="text-center pt-8 pb-2 shrink-0">
+        <div className="flex justify-center mb-4">
+           <div className="h-16 w-16 bg-foreground text-background rounded-full flex items-center justify-center shadow-xl animate-in zoom-in duration-300">
+             <Check size={32} strokeWidth={3} />
+           </div>
+        </div>
+        <h2 className="text-3xl font-bold font-title text-foreground leading-none mb-2">Confirmada</h2>
+        <p className="text-muted text-sm px-6">
+          Hemos enviado el ticket a tu email.
+        </p>
       </div>
 
-      <h2 className="text-3xl font-bold font-title text-foreground mb-2">
-        ¡Reserva Confirmada!
-      </h2>
-      <p className="text-muted text-lg max-w-xs mx-auto mb-8">
-        Gracias <span className="text-foreground font-semibold">{booking.client?.name}</span>, revisa tu correo electrónico.
-      </p>
-
-      <PushNotificationManager customerId={customerId} email={booking.client?.email || ''} booking={booking} />
-
-      {/* TICKET RESUMEN */}
-      <div className="bg-background-secondary w-full max-w-sm rounded-2xl p-6 border border-foreground/5 shadow-sm mb-8 text-left relative overflow-hidden">
-        {/* Decoración Ticket (Círculos laterales) */}
-        <div className="absolute top-1/2 -left-3 w-6 h-6 bg-background rounded-full" />
-        <div className="absolute top-1/2 -right-3 w-6 h-6 bg-background rounded-full" />
-        <div className="absolute top-1/2 left-0 right-0 border-t-2 border-dashed border-foreground/10" />
-
-        <div className="space-y-4 pb-4">
-            <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                    <Calendar size={20} />
-                </div>
-                <div>
-                    <p className="text-xs text-muted font-bold uppercase">Fecha y Hora</p>
-                    <p className="font-bold text-foreground capitalize">
-                        {booking.date && format(booking.date, 'EEEE d MMMM', { locale: es })}
-                    </p>
-                    <p className="text-sm text-foreground/80">
-                        a las {booking.time}h
-                    </p>
-                </div>
-            </div>
+      {/* 2. TICKET (Más limpio y espacioso) */}
+      {/* Usamos my-auto para que se centre verticalmente si sobra espacio */}
+      <div className="mx-5 my-auto bg-background-secondary border border-foreground/10 rounded-2xl p-5 shrink-0 shadow-sm">
+        <div className="flex justify-between items-center pb-4 mb-4 border-b border-foreground/20">
+           <div className="text-left">
+              <p className="text-[11px] text-muted uppercase font-bold tracking-wider mb-1">Fecha</p>
+              <p className="font-semibold text-foreground text-base capitalize">
+                 {booking.date && format(booking.date, 'EEEE d MMMM', { locale: es })}
+              </p>
+           </div>
+           <div className="text-right">
+              <p className="text-[11px] text-muted uppercase font-bold tracking-wider mb-1">Hora</p>
+              <p className="font-semibold text-foreground text-base">{booking.time}</p>
+           </div>
         </div>
-
-        <div className="space-y-1 pt-4">
-            <div className="flex items-center gap-3">
-                <div className="p-2 bg-foreground/5 rounded-lg text-foreground">
-                    <MapPin size={20} />
-                </div>
-                <div>
-                      <p className="text-xs text-muted font-bold uppercase">Ubicación</p>
-                      <p className="font-bold text-sm text-foreground">Barbería Estilo</p>
-                      <p className="text-xs text-muted">Calle Falsa 123, Madrid</p>
-                </div>
+        <div className="flex justify-between items-end">
+            <div className="text-left overflow-hidden mr-4">
+               <p className="text-[11px] text-muted uppercase font-bold tracking-wider mb-1">Servicio</p>
+               <p className="font-medium text-foreground text-sm truncate">{booking.services[0]?.title}</p>
+            </div>
+            <div className="text-right shrink-0">
+               <p className="font-medium text-foreground text-[10px] bg-foreground/20 px-3 py-1.5 rounded-md border border-foreground/10 shadow-sm">
+                 Calle Falsa 123
+               </p>
             </div>
         </div>
       </div>
 
-      {/* BOTONES DE ACCIÓN */}
-      <div className="flex flex-col w-full max-w-sm gap-3">
-        <a 
-            href={googleCalendarUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full bg-background border-2 border-foreground/10 hover:bg-foreground/5 text-foreground py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all"
-        >
-            <Calendar size={18} />
-            Añadir a Google Calendar
-        </a>
+      {/* 3. ZONA DE ACCIONES (Más separada) */}
+      <div className="mt-auto px-5 pb-8 pt-4 space-y-4">
+        
+        {/* Grid de Calendarios */}
+        <div className="grid grid-cols-2 gap-4">
+            <a 
+                href={generateGoogleCalendarUrl(booking)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 py-3.5 rounded-xl border border-foreground/20 bg-primary hover:bg-secondary transition-colors text-sm font-bold text-foreground group"
+            >
+                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 424 432">
+                    <path fill="currentColor" d="M214 186v-1h201q3 12 3 36q0 93-56.5 150.5T213 429q-88 0-150.5-62T0 216T62 65T213 3q87 0 144 57l-57 56q-33-33-86-33q-54 0-92.5 39.5t-38.5 95t38.5 94.5t92.5 39q31 0 55-9.5t37.5-24.5t20.5-29.5t10-27.5H214v-74z"></path>
+                 </svg>
+                 Google Calendar
+            </a>
+            <button 
+                onClick={() => downloadIcsFile(booking)}
+                className="flex items-center justify-center gap-2 py-3.5 rounded-xl border border-foreground/20 bg-primary hover:bg-secondary transition-colors text-sm font-bold text-foreground group"
+            >
+                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="16" viewBox="0 0 368 432">
+                    <path fill="currentColor" d="M353 146q-21 7-35 32.5T304 229q0 31 16 57.5t43 33.5q-8 27-26.5 55.5T299 418q-16 11-40 11q-16 0-37-8q-18-9-31-9q-10 0-40 12q-18 5-26 5q-24 0-49-20q-36-34-56-81T0 230q0-53 30.5-93.5T108 96q26 0 48 11q17 11 34 11q16 0 31-6q39-16 52-16q35 0 61 23q12 12 19 27zM179 99q0-32 25-63q25-27 61-33q0 38-24 67q-27 29-62 29z"></path>
+                 </svg>
+                 Apple Calendar
+            </button>
+        </div>
 
-        <button 
-            onClick={onClose}
-            className="w-full bg-foreground text-background hover:bg-foreground/90 py-3.5 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-2"
+        {/* Push Manager */}
+        <PushNotificationManager 
+            customerId={customerId} 
+            email={booking.client?.email || ''} 
+            booking={booking}
+        />
+
+        {/* Botón Finalizar */}
+        <button
+          onClick={onClose}
+          className="w-full group bg-primary text-foreground py-4 rounded-xl font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-md text-sm"
         >
-            Entendido, ¡gracias! <ArrowRight size={18} />
+          Finalizar 
+          <ArrowRight className='group-hover:translate-x-1 transition-transform duration-150' size={18} />
         </button>
       </div>
 

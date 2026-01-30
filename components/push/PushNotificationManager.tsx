@@ -1,38 +1,36 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { usePWA } from '@/hooks/usePWA';   // Nuestro gancho detector
-import { urlBase64ToUint8Array } from '@/utils/push'; // El traductor
+import { usePWA } from '@/hooks/usePWA';
+import { urlBase64ToUint8Array } from '@/utils/push';
 import { toast } from 'sonner'; 
 import { Booking } from '../booking/BookingModal';
-import { format } from 'date-fns';
+import { BellRing } from 'lucide-react';
 
 interface PushManagerProps {
-  booking: Booking
   customerId: string;
   email: string;
+  booking?: Booking;
 }
 
-export default function PushNotificationManager({ customerId, email, booking }: PushManagerProps) {
+export default function PushNotificationManager({ customerId, email }: PushManagerProps) {
   const { isIOS, isStandalone, isInstallable, installPWA } = usePWA();
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // 1. AL CARGAR: Comprobar si YA estaba suscrito de antes
+  // 1. Chequeo inicial
   useEffect(() => {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
       navigator.serviceWorker.ready.then(registration => {
         registration.pushManager.getSubscription().then(subscription => {
-          // Si subscription existe, es que ya tiene permiso
           if (subscription) setIsSubscribed(true);
         });
       });
     }
   }, []);
 
-  // 2. ACCIÓN: El usuario pulsa el botón
+  // 2. Lógica de Suscripción + Notificación Inmediata
   const subscribeUser = async () => {
-    // Protección: Si no hay soporte (ej: HTTP no seguro), avisamos
     if (!('serviceWorker' in navigator)) {
         toast.error('Tu navegador no soporta notificaciones push.');
         return;
@@ -41,50 +39,47 @@ export default function PushNotificationManager({ customerId, email, booking }: 
     setLoading(true);
 
     try {
-      // A. REGISTRAR EL CONSERJE (Service Worker)
       const registration = await navigator.serviceWorker.register('/sw.js');
       await navigator.serviceWorker.ready;
 
-      // B. PEDIR PERMISO (Sale el popup del navegador)
       const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true, // Prometemos que siempre mostraremos algo visual
+        userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!)
       });
 
-      // C. GUARDAR EN LA AGENDA (Supabase)
+      // A. Guardar en Base de Datos
       const response = await fetch('/api/notifications/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            subscription,
-            email,
-            userAgent: navigator.userAgent,
-            customerId
+          subscription,
+          email,
+          userAgent: navigator.userAgent,
+          customerId
         })
-      }) 
+      });
 
-      
-      if (!response.ok) throw new Error('Error al guardar la suscripción en servidor')
+      if (!response.ok) throw new Error('Error al guardar suscripción');
 
+      // B. Enviar "Reserva Confirmada" al instante
       await fetch('/api/notifications/send', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
           title: '✅ ¡Reserva Confirmada!',
-          message: `Hola ${booking.client?.name}, tu cita es el ${format(booking.date!, 'dd/MM')} a las ${booking.time}.`,
-          url: window.location.origin //* AQUI PODRIAMOS PLANTEAR LA IDEA DE SITIO FANTASMA 
+          message: 'Gracias por activar los avisos. Te recordaremos tu cita por aquí.',
+          url: window.location.origin
         })
-      })
+      });
 
       setIsSubscribed(true);
       toast.success('¡Recordatorios activados!');
-        
 
     } catch (error: any) {
       console.error('Error Push:', error);
       if (error.name === 'NotAllowedError') {
-        toast.error('Has bloqueado las notificaciones. Revísalo en la configuración.');
+        toast.error('Has bloqueado las notificaciones. Revísalo en ajustes.');
       } else {
         toast.error('Error al activar notificaciones.');
       }
@@ -93,53 +88,55 @@ export default function PushNotificationManager({ customerId, email, booking }: 
     }
   };
 
-  // --- RENDERIZADO (¿Qué mostramos?) ---
+  // --- RENDERIZADO (Horizontal y Compacto) ---
 
-  // CASO 1: iPhone que NO ha instalado la App -> INSTRUCCIONES
+  // CASO A: iPhone sin instalar App
   if (isIOS && !isStandalone) {
     return (
-      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center">
-        <h3 className="font-bold text-gray-900 mb-2">📲 Activa los recordatorios</h3>
-        <p className="text-sm text-gray-600 mb-2">
-          En iPhone, necesitas instalar la App primero.
-        </p>
-        <div className="text-xs text-gray-500 bg-white p-2 rounded border inline-block">
-            Pulsar <strong>Compartir</strong> <span className="text-lg">⎋</span> &rarr; <strong>Añadir a inicio</strong>
+      <div className="flex items-center justify-between p-3 bg-background-secondary border border-foreground/10 rounded-xl">
+        <div className="text-left">
+            <p className="text-xs font-bold text-foreground">Instalar App</p>
+            <p className="text-[10px] text-muted">Para recibir avisos en iPhone</p>
+        </div>
+        <div className="text-[10px] font-medium bg-primary hover:bg-secondary px-2 py-1.5 rounded border border-foreground/10 shadow-sm text-background">
+            Compartir ⎋ + Inicio
         </div>
       </div>
     );
   }
 
-  // CASO 2: Ya suscrito (Éxito)
+  // CASO B: Ya suscrito (Verde)
   if (isSubscribed) {
     return (
-      <div className="text-center space-y-3">
-        <div className="bg-green-50 text-green-700 p-3 rounded-lg border border-green-100 flex items-center justify-center gap-2 font-medium">
-           <span>🔔</span> Notificaciones activas
-        </div>
-        
-        {/* Extra: Si es Android y aún no instaló la App, le ofrecemos instalar */}
-        {isInstallable && (
-           <button onClick={installPWA} className="text-sm text-gray-500 underline">
-             Instalar App en el móvil
+      <div className="flex items-center justify-center gap-2 p-2 bg-green-600 border border-green-100 rounded-xl text-foreground">
+         <BellRing size={16} />
+         <span className="text-sm font-bold">Recordatorios activos</span>
+         {isInstallable && (
+           <button onClick={installPWA} className="ml-2 text-[10px] underline hover:text-green-900">
+             Instalar App
            </button>
-        )}
+         )}
       </div>
     );
   }
 
-  // CASO 3: Normal (Botón de activar)
+  // CASO C: Normal (Activar)
   return (
-    <div className="p-4 bg-brand/5 rounded-xl border border-brand/10 text-center">
-      <h3 className="font-semibold text-brand mb-1">🔔 No te pierdas tu cita</h3>
-      <p className="text-xs text-gray-500 mb-4">Te avisaremos gratis al móvil.</p>
+    <div className="flex items-center justify-between p-3 bg-background-secondary border border-foreground/10 rounded-xl">
+      <div className="text-left">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <BellRing size={16} className='text-foreground' />
+            <span className="text-sm font-bold text-foreground">Recordatorios</span>
+          </div>
+          <p className="text-[12px] text-muted">Te avisamos 24h antes.</p>
+      </div>
       
       <button
         onClick={subscribeUser}
         disabled={loading}
-        className="bg-foreground text-background px-6 py-2 rounded-full text-sm font-bold hover:bg-gray-800 transition-colors w-full disabled:opacity-50"
+        className="bg-primary text-foreground px-4 py-2 rounded-lg text-xs font-bold hover:bg-foreground/90 transition-all disabled:opacity-50"
       >
-        {loading ? 'Activando...' : 'Activar Recordatorios'}
+        {loading ? '...' : 'Activar'}
       </button>
     </div>
   );

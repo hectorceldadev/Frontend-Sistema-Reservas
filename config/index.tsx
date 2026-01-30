@@ -708,7 +708,7 @@ export const SITE_CONFIG: SiteConfig = {
     },
     design: {
         background: 'peluqueria-regular',
-        paleta: 'light-blue',
+        paleta: 'mauve',
         typography: 'barberiaUrbana'
     }
 }
