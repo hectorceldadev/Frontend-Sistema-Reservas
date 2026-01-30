@@ -5,7 +5,6 @@ import { SITE_CONFIG } from "@/config";
 import { Metadata, Viewport } from "next";
 import JsonLd from "@/components/schema/JsonLd";
 import { Toaster } from "sonner"
-import BookingModal from "@/components/booking/BookingModal";
 
 const { metadataInfo } = SITE_CONFIG
 
@@ -101,7 +100,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         <JsonLd />
         <BackgroundSelector >
-          <BookingModal />
           {children}
           <Toaster />
         </BackgroundSelector>
