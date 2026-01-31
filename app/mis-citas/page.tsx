@@ -7,42 +7,6 @@ import { es } from 'date-fns/locale';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
-// --- DATOS FALSOS (MOCK DATA) ---
-const MOCK_BOOKINGS = [
-  {
-    id: '1',
-    date: '2025-12-25',
-    start_time: '10:00:00',
-    status: 'confirmed',
-    staff: { full_name: 'Carlos Barbero' },
-    booking_items: [{ services: { title: 'Corte Clásico & Degradado', duration: 30, price: 25 } }]
-  },
-  {
-    id: '2',
-    date: '2025-12-28',
-    start_time: '16:30:00',
-    status: 'pending_payment',
-    staff: { full_name: 'Ana Estilista' },
-    booking_items: [{ services: { title: 'Ritual Barba Premium', duration: 45, price: 35 } }]
-  },
-  {
-    id: '3',
-    date: '2023-01-15',
-    start_time: '11:00:00',
-    status: 'completed',
-    staff: { full_name: 'Carlos Barbero' },
-    booking_items: [{ services: { title: 'Corte Niño', duration: 20, price: 15 } }]
-  },
-  {
-    id: '4',
-    date: '2023-02-10',
-    start_time: '18:00:00',
-    status: 'cancelled',
-    staff: { full_name: 'Dani Master' },
-    booking_items: [{ services: { title: 'Tinte Completo', duration: 90, price: 60 } }]
-  }
-];
-
 const BUSINESS_ID = 'b0880124-97ad-4560-8542-fbc31ff46a8f'
 
 export default function MyBookingsPage() {
@@ -73,7 +37,7 @@ export default function MyBookingsPage() {
 
         if (!response.ok) throw new Error(data.error || 'Error al obtener citas')
 
-        setBookings(data.booking || [])
+        setBookings(data.bookings || [])
         setSearched(true)
 
         localStorage.setItem('booking_client_info', JSON.stringify({ email: emailToSearch }))
@@ -128,7 +92,7 @@ export default function MyBookingsPage() {
         const response = await fetch('/api/cancel', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({bookingId})
+            body: JSON.stringify({bookingId, email})
         })
 
         const data = await response.json()

@@ -35,7 +35,7 @@ export async function POST (request: Request) {
         }
 
         console.log(`✅ Citas encontradas: ${data?.length}`)
-        return NextResponse.json({ booking: data })
+        return NextResponse.json({ bookings: data })
     } catch (error: any) {
         console.error('💥 Error Servidor:', error)
         return NextResponse.json({ error: error.message }, { status: 500 })

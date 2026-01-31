@@ -8,13 +8,14 @@ const supabaseAdmin = createClient(
 
 export async function POST (request: Request) {
     try {
-        const { bookingId } = await request.json()
+        const { bookingId, email } = await request.json()
 
         if (!bookingId) return NextResponse.json({ error: 'Es necesario un ID de reserva valido' }, { status: 400 })
 
         const { error } = await supabaseAdmin
             .from('bookings')
             .update({status: 'cancelled'})
+            .eq('customer_email', email)
             .eq('id', bookingId)
 
         if (error) {
