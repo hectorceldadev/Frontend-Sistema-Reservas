@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import { ChevronDown, Menu, X, CalendarDays, ArrowUpRight, Scissors, User, Zap, Star, type LucideIcon } from 'lucide-react'
 import { SITE_CONFIG } from '@/config'
 import { ServiceDB } from '@/lib/types/databaseTypes'
+import { useBooking } from '@/context/BookingContext'
 
 // 2. Definimos que este objeto tiene claves string y valores LucideIcon
 const iconMap: Record<string, LucideIcon> = {
@@ -24,7 +25,9 @@ interface NavBarTypes {
 export default function Navbar({ services }: NavBarTypes) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-  const { navBar, servicios } = SITE_CONFIG;
+  const { navBar } = SITE_CONFIG;
+
+  const { openModal } = useBooking()
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -133,13 +136,12 @@ export default function Navbar({ services }: NavBarTypes) {
 
             {/* CTA & BURGER */}
             <div className="flex items-center gap-4">
-              <Link
-                href={navBar.cta.href}
-                target="_blank"
+              <button
+              onClick={openModal}
                 className="hidden md:flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-full ring ring-white/10 text-md font-bold transition-all shadow-[0_0_20px_rgba(var(--primary),0.3)] active:scale-95 uppercase tracking-wider"
               >
                 {navBar.cta.text}
-              </Link>
+              </button>
 
               <button
                 className="md:hidden p-2 text-foreground hover:text-primary transition-colors relative z-60"
@@ -220,14 +222,13 @@ export default function Navbar({ services }: NavBarTypes) {
           </div>
 
           <div className="mt-auto pt-6">
-            <Link
-              href={navBar.cta.href}
-              target="_blank"
+            <button
+              onClick={openModal}
               className="flex items-center justify-center gap-3 w-full bg-primary text-white py-5 rounded-3xl font-bold text-xl shadow-2xl shadow-primary/20 active:scale-95 transition-transform"
             >
               <CalendarDays className="w-6 h-6" />
               {navBar.cta.text}
-            </Link>
+            </button>
           </div>
 
         </div>

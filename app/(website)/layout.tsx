@@ -1,4 +1,3 @@
-import BookingModal from '@/components/booking/BookingModal';
 import { Footer } from '@/components/Footer';
 import NavBar from '@/components/NavBar';
 import { getServices } from '@/lib/data';
@@ -9,7 +8,6 @@ export default async function WebsiteLayout({ children }: { children: React.Reac
 
   return (
     <>
-      <BookingModal services={services} />
       <NavBar services={services} />
         <main>{children}</main>
       <Footer services={services} />

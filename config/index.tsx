@@ -58,7 +58,6 @@ export interface SiteConfig {
         }>
         cta: {
             text: string
-            href: string
         }
     }
     hero: {
@@ -335,13 +334,12 @@ export const SITE_CONFIG: SiteConfig = {
                 text: 'Galería'
             },
             {
-                href: '/contacto',
-                text: 'Contacto'
+                href: '/reserva',
+                text: 'Reserva'
             },
         ],
         cta: {
-            text: 'RESERVAR CITA',
-            href: 'https://wa.me/[34Número de teléfono]?text=Hola%20[Nombre del negocio]%quería%20reservar%cita'
+            text: 'RESERVAR CITA'
         }
     },
     hero: {
@@ -349,7 +347,6 @@ export const SITE_CONFIG: SiteConfig = {
         title: '[TÍTULO \nPRINCIPAL]',
         desc: '[Descripción principal] ej:La nueva referencia de peluquería masculina en Silla. Especialistas en fades, diseños y arreglo de barba. Tu sitio de confianza a solo 5 minutos de Picassent, Albal y Catarroja.',
         ctaPrimary: {
-            href: 'https://wa.me/[34Número de teléfono]?text=Hola%20[Nombre del negocio]%quería%20reservar%cita',
             icon: 'CalendarDays',
             text: 'RESERVAR CITA'
         },

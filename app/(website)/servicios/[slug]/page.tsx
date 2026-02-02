@@ -9,50 +9,49 @@ interface ServicioProps {
 
 const { metadataInfo } = SITE_CONFIG
 
-// Genera las rutas estáticas al hacer build
 export const generateStaticParams = async () => {
-    const services = await getServices() || []
+    const services = await getServices()
+    if (!services) return []
     
     return services.map(service => ({
         slug: service.slug
     }))
 }
 
-// Genera el SEO dinámico
 export const generateMetadata = async ({ params }: ServicioProps) => {
-    // 1. CORREGIDO: Sacamos el slug de los params (URL), NO de los servicios
     const { slug } = await params 
-
-    const services = await getServices() || []
-    
-    // 2. Buscamos el servicio que coincida con el slug
-    const servicio = services.find(item => item.slug === slug)
+    const services = await getServices()
+    const servicio = services?.find(item => item.slug === slug)
 
     if (!servicio) return { title: 'Servicio no encontrado' }
 
     return {
-        title: `${servicio.title} | [NOMBRE]`, // Ajusta [NOMBRE] con tu config si quieres
+        title: `${servicio.title} | [NOMBRE]`, 
         description: servicio.short_desc,
         keywords: [ servicio.title, ...(metadataInfo.keywords || []) ],
     }
 }
 
 const page = async ({ params }: ServicioProps) => {
-    // 1. CORREGIDO: Sacamos el slug de los params (URL)
     const { slug } = await params
-    
     const services = await getServices() || []
     
-    // 2. Buscamos el servicio
+    // 1. Buscamos el servicio actual
     const servicio = services.find(s => s.slug === slug)
 
-    // 3. Si no existe, 404
     if (!servicio) notFound()
+
+    // 2. Calculamos los relacionados AQUÍ (en el servidor)
+    // Filtramos el actual y desordenamos la lista
+    const relatedServices = services
+        .filter(s => s.slug !== slug) // Quitamos el actual
+        .sort(() => 0.5 - Math.random()) // Aleatorio
+        .slice(0, 3) // Cogemos 3
 
     return (
         <div>
-            {/* Si tu componente Servicio espera 'relatedServices', pásaselo aquí también */}
-            <Servicio service={servicio} services={services} />
+            {/* Pasamos la lista ya recortada y aleatoria */}
+            <Servicio service={servicio} relatedServices={relatedServices} />
         </div>
     )
 }

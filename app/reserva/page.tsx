@@ -6,22 +6,39 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { useBooking } from '@/context/BookingContext';
+import { SITE_CONFIG } from '@/config';
 
-const BUSINESS_ID = 'b0880124-97ad-4560-8542-fbc31ff46a8f'
+// Interfaz específica para el historial (lo que viene de la DB)
+interface BookingHistoryItem {
+  id: string;
+  date: string;
+  start_time: string;
+  status: string;
+  customer_name?: string;
+  staff?: { full_name: string } | null;
+  booking_items: Array<{
+    price: number;
+    services: { title: string; duration: number } | null
+  }>;
+}
 
 export default function MyBookingsPage() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
-  const [bookings, setBookings] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<BookingHistoryItem[]>([]);
   
-  // ESTADO PARA EL MODAL
-  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  // Estado para el modal de detalles
+  const [selectedBooking, setSelectedBooking] = useState<BookingHistoryItem | null>(null);
+
+  // Contexto para abrir el modal de nueva reserva
+  const { openModal } = useBooking();
 
   const executeSearch = useCallback(async (emailToSearch: string) => {
-    if (!emailToSearch) return
+    if (!emailToSearch) return;
 
-    setLoading(true)
+    setLoading(true);
 
     try {
         const response = await fetch('/api/my-bookings', {
@@ -29,7 +46,8 @@ export default function MyBookingsPage() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 email: emailToSearch,
-                businessId: BUSINESS_ID
+                // Usamos la configuración correcta
+                businessId: SITE_CONFIG.supabaseData.businessId 
             })
         })
 
@@ -76,23 +94,23 @@ export default function MyBookingsPage() {
     toast.success('Buscando citas...');
   };
 
-  // --- LÓGICA DE CANCELACIÓN (SIMULADA) ---
   const handleCancelBooking = async (bookingId: string) => {
-    // 1. Aquí iría la llamada real a la API: await fetch(`/api/bookings/cancel`, ...)
+    // 1. Optimistic UI: Actualizamos visualmente antes
     const previousBookings = [...bookings]
-    // 2. Actualizamos el estado local para verlo reflejado al instante
+    
     const updatedBookings = bookings.map(b => 
         b.id === bookingId ? { ...b, status: 'cancelled' } : b
     );
     setBookings(updatedBookings);
     
-    // 3. Cerramos modal y avisamos
+    // 2. Cerrar modal de detalles
     setSelectedBooking(null);
+
     try {
         const response = await fetch('/api/cancel', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({bookingId, email})
+            body: JSON.stringify({ bookingId, email })
         })
 
         const data = await response.json()
@@ -103,6 +121,7 @@ export default function MyBookingsPage() {
         toast.success('Reserva cancelada correctamente');
     } catch (error) {
         console.error(error)
+        // Rollback si falla
         setBookings(previousBookings)
         toast.error('Hubo un problema al cancelar la reserva')
     }
@@ -126,7 +145,7 @@ export default function MyBookingsPage() {
       </div>
 
       <div className="max-w-md mx-auto px-5 space-y-8 mt-4">
-        {/* <div className={`absolute top-4 left-1/2 -translate-x-1/2 w-[50%] md:w-[60%] h-100 bg-primary/10 rounded-full blur-3xl z-0 pointer-events-none`} /> */}
+        
         {/* BUSCADOR */}
         <div className="relative group">
             <div className="relative bg-background-secondary p-1.5 rounded-2xl shadow-sm border border-foreground/10 flex items-center">
@@ -187,9 +206,16 @@ export default function MyBookingsPage() {
                             </div>
                             <p className="text-foreground font-medium text-sm">Todo despejado</p>
                             <p className="text-muted text-xs mb-4">No tienes citas programadas.</p>
-                            <Link href="/" className="text-xs font-bold text-primary underline decoration-2 underline-offset-4">
+                            {/* Botón para abrir el modal de nueva reserva desde el contexto */}
+                            <button 
+                                onClick={() => {
+                                    console.log('Hola')
+                                    openModal()
+                                }}
+                                className="text-xs font-bold text-primary underline decoration-2 underline-offset-4 cursor-pointer"
+                            >
                                 Reservar ahora
-                            </Link>
+                            </button>
                         </div>
                     ) : (
                         <div className="space-y-4">
@@ -197,7 +223,7 @@ export default function MyBookingsPage() {
                                 <TicketCard 
                                     key={booking.id} 
                                     booking={booking} 
-                                    onClick={() => setSelectedBooking(booking)} // Click para abrir modal
+                                    onClick={() => setSelectedBooking(booking)}
                                 />
                             ))}
                         </div>
@@ -226,7 +252,7 @@ export default function MyBookingsPage() {
         )}
       </div>
 
-      {/* --- MODAL DE DETALLES --- */}
+      {/* MODAL DE DETALLES DE UNA CITA EXISTENTE */}
       {selectedBooking && (
           <BookingDetailsModal 
              booking={selectedBooking} 
@@ -241,7 +267,7 @@ export default function MyBookingsPage() {
 
 // --- TICKET CARD ---
 
-function TicketCard({ booking, isPast = false, onClick }: { booking: any, isPast?: boolean, onClick: () => void }) {
+function TicketCard({ booking, isPast = false, onClick }: { booking: BookingHistoryItem, isPast?: boolean, onClick: () => void }) {
     // 1. FECHA SEGURA
     let dateObj = new Date();
     try {
@@ -261,15 +287,14 @@ function TicketCard({ booking, isPast = false, onClick }: { booking: any, isPast
     const duration = booking.booking_items?.[0]?.services?.duration || 30;
 
     // 4. STAFF SEGURO
-    const staffObj = Array.isArray(booking.staff) ? booking.staff[0] : booking.staff;
-    const staffName = staffObj?.full_name || 'Staff';
+    const staffName = booking.staff?.full_name || 'Staff';
 
     const statusColor = {
         confirmed: 'bg-foreground',
         pending_payment: 'bg-orange-500',
         cancelled: 'bg-red-500',
         completed: 'bg-gray-400'
-    }[booking.status as string] || 'bg-gray-400';
+    }[booking.status] || 'bg-gray-400';
 
     return (
         <button 
@@ -326,8 +351,9 @@ function TicketCard({ booking, isPast = false, onClick }: { booking: any, isPast
     );
 }
 
-// ... MODAL COMPONENT ...
-function BookingDetailsModal({ booking, onClose, onCancel }: { booking: any, onClose: () => void, onCancel: (id: string) => void }) {
+// --- MODAL DETALLES ---
+
+function BookingDetailsModal({ booking, onClose, onCancel }: { booking: BookingHistoryItem, onClose: () => void, onCancel: (id: string) => void }) {
     const isCancellable = booking.status !== 'cancelled' && booking.status !== 'completed';
     
     const statusLabels: Record<string, string> = {
@@ -341,7 +367,7 @@ function BookingDetailsModal({ booking, onClose, onCancel }: { booking: any, onC
         pending_payment: 'bg-orange-100 text-orange-700 border-orange-200',
         cancelled: 'bg-red-50 text-red-600 border-red-100',
         completed: 'bg-gray-100 text-gray-600 border-gray-200'
-    }[booking.status as string] || 'bg-gray-100';
+    }[booking.status] || 'bg-gray-100';
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
@@ -390,7 +416,7 @@ function BookingDetailsModal({ booking, onClose, onCancel }: { booking: any, onC
                                     {booking.booking_items?.[0]?.services?.title}
                                 </p>
                                 <p className="text-sm text-foreground/80">
-                                    con {booking.staff?.full_name || booking.staff?.[0]?.full_name}
+                                    con {booking.staff?.full_name || 'Staff asignado'}
                                 </p>
                             </div>
                         </div>

@@ -14,6 +14,12 @@ interface StepStaffProps {
   isLoading: boolean;
 }
 
+const ROLE_MAP: Record<string, string> = {
+  admin: 'Gerente / Top Barber',
+  worker: 'Estilista Profesional',
+  any: 'Primer hueco libre' // Para la opción "Cualquiera"
+};
+
 export default function StepStaff({ booking, setBooking, staffList, isLoading }: StepStaffProps) {
   
   const handleSelect = (member: Profile) => {
@@ -109,7 +115,7 @@ export default function StepStaff({ booking, setBooking, staffList, isLoading }:
                       "text-xs font-medium block transition-colors capitalize",
                       isSelected ? "text-primary/80" : "text-muted"
                   )}>
-                      {member.role}
+                      {isAny ? ROLE_MAP['any'] : (ROLE_MAP[member.role] || member.role)}
                   </span>
               </div>
               

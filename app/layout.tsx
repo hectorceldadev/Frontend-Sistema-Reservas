@@ -5,6 +5,9 @@ import { SITE_CONFIG } from "@/config";
 import { Metadata, Viewport } from "next";
 import JsonLd from "@/components/schema/JsonLd";
 import { Toaster } from "sonner"
+import { BookingProvider } from "@/context/BookingContext";
+import BookingModal from "@/components/booking/BookingModal";
+import { getServices } from "@/lib/data";
 
 const { metadataInfo } = SITE_CONFIG
 
@@ -90,7 +93,10 @@ const openSans = Open_Sans({
   display: 'swap'
 })
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+
+  const services = await getServices() || []
+
   return (
     <html lang="es">
       <body
@@ -99,10 +105,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         data-font={SITE_CONFIG.design.typography}
       >
         <JsonLd />
-        <BackgroundSelector >
-          {children}
-          <Toaster />
-        </BackgroundSelector>
+        <BookingProvider>
+          <BackgroundSelector >
+            {children}
+            <BookingModal services={services} />
+            <Toaster />
+          </BackgroundSelector>
+        </BookingProvider>
       </body>
     </html>
   );

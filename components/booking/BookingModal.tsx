@@ -16,6 +16,7 @@ import StepSuccess from './StepSuccess';
 import { supabase } from '@/lib/supabase';
 import { getServices } from '@/lib/data';
 import { ServiceDB } from '@/lib/types/databaseTypes';
+import { useBooking } from '@/context/BookingContext';
 
 export interface Booking {
   services: Service[];
@@ -62,7 +63,6 @@ interface BookingModalTypes {
 }
 
 export default function BookingModal({ services }: BookingModalTypes) {
-  const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [availableServices, setAvailableServices] = useState<ServiceDB[] | []>(services)
@@ -71,6 +71,8 @@ export default function BookingModal({ services }: BookingModalTypes) {
   const [busySlots, setBusySlots] = useState<BusySlot[] | []>([])
   const [loadingAviability, setLoadingAviability] = useState<boolean>(false)
   const [ confirmedCustomerId, setConfirmedCustomerId ] = useState<string | null>(null)
+
+  const { isOpen, closeModal, openModal } = useBooking()
 
   // Referencia para el contenedor del scroll
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -216,7 +218,7 @@ export default function BookingModal({ services }: BookingModalTypes) {
   const prevStep = () => setStep((prev) => prev - 1);
 
   const handleClose = () => {
-    setIsOpen(false);
+    closeModal();
     if (step === 6) {
       setTimeout(() => {
         setStep(1);
@@ -462,7 +464,7 @@ export default function BookingModal({ services }: BookingModalTypes) {
     <>
       {/* BOTÓN FLOTANTE DE RESERVA */}
       <button
-        onClick={() => setIsOpen(true)}
+        onClick={openModal}
         className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-foreground text-background px-6 py-4 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all font-bold text-lg group"
       >
         <CalendarDays size={24} className="group-hover:animate-pulse" />

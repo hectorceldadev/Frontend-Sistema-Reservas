@@ -4,6 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { CalendarDays, ArrowRight, Star, Scissors, User, MapPin, ArrowUpRight, LucideIcon } from "lucide-react"
 import { SITE_CONFIG } from "@/config"
+import { useBooking } from "@/context/BookingContext"
 
 // 1. Diccionario de Iconos para los botones
 const iconMap: Record<string, LucideIcon> = {
@@ -16,6 +17,8 @@ const iconMap: Record<string, LucideIcon> = {
 const Hero = () => {
     // 2. Extraemos la data del Config
     const { hero, design } = SITE_CONFIG;
+
+    const { openModal } = useBooking()
 
     // 3. Preparamos los datos
     // Separamos el título por el salto de línea '\n' definido en el config
@@ -61,16 +64,15 @@ const Hero = () => {
                         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
                             
                             {/* Botón Primario */}
-                            <Link
-                                href={hero.ctaPrimary.href}
-                                target={hero.ctaPrimary.href.startsWith('http') ? "_blank" : "_self"}
+                            <button
+                                onClick={openModal}
                                 className="group w-full sm:w-auto relative overflow-hidden rounded-xl bg-primary px-8 py-4 text-foreground transition-all duration-150 hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25 active:scale-95"
                             >
                                 <div className="relative z-10 flex items-center justify-center gap-2 font-bold uppercase tracking-wide text-sm sm:text-base">
                                     <IconPrimary className="w-5 h-5" />
                                     {hero.ctaPrimary.text}
                                 </div>
-                            </Link>
+                            </button>
 
                             {/* Botón Secundario */}
                             <Link
