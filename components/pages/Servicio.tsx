@@ -7,40 +7,32 @@ import { useGSAP } from '@gsap/react'
 import { useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { ServiceDB } from '@/lib/types/databaseTypes'
 
 gsap.registerPlugin(ScrollTrigger)
-
-interface Props {
-    servicio: {
-        id: string
-        title: string
-        desc: string
-        fullDesc: string
-        icon: string
-        price: string
-        slug: string
-        features: string[]
-        duracion: string
-    }
-}
 
 const iconsMap: Record<string, LucideIcon> = { //**HACER ICONS */
     Scissors: Scissors
 }
 
-export const Servicio = ({ servicio }: Props) => {
+interface ServivioTypes {
+    service: ServiceDB
+    services: ServiceDB[]
+}
 
-    const { servicios, servicioEspecifico } = SITE_CONFIG
+export const Servicio = ({ service, services }: ServivioTypes) => {
+
+    const { servicioEspecifico } = SITE_CONFIG
     
     const containerRef = useRef<HTMLDivElement | null>(null)
 
     const viewMore = () => {
-        return servicios.items.filter(item => item.slug === servicio.slug ).sort(() => Math.random() - 0.5).slice(0,3)
+        return services.filter(item => item.slug !== service.slug ).sort(() => Math.random() - 0.5).slice(0,4)
     }
 
     const listaServicios = viewMore()
 
-    const Icon = iconsMap[servicio.icon]
+    const Icon = iconsMap[service.icon] || Scissors
 
     useGSAP(() => {
 
@@ -93,20 +85,20 @@ export const Servicio = ({ servicio }: Props) => {
                         </div>
 
                         <h1 className={`text-[42px] md:text-5xl text-foreground uppercase font-semibold leading-none font-title`}>
-                            {servicio.title}
+                            {service.title}
                         </h1>
 
                         <div className="flex items-center gap-4">
                             <span className="text-2xl font-bold text-primary font-title">
-                                {servicio.price}
+                                {service.price}€
                             </span>
                             <span className="px-3 py-1 rounded-full border border-foreground text-muted text-xs font-bold uppercase tracking-wide">
-                                Duración Aprox. {servicio.duracion}
+                                Duración Aprox. {service.duration}
                             </span>
                         </div>
 
                         <p className="text-lg text-muted leading-relaxed max-w-lg">
-                            {servicio.desc}
+                            {service.short_desc}
                         </p>
 
                         {/* Botones de Acción */}
@@ -135,21 +127,23 @@ export const Servicio = ({ servicio }: Props) => {
                         </h3>
 
                         <ul className="space-y-6">
-                            {servicio.features.map((feature, idx) => (
-                                <li key={idx} className="flex items-start gap-4 group">
-                                    <div className="mt-1 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center border border-foreground/20 group-hover:border-primary transition-colors">
-                                        <Check className="w-3.5 h-3.5 text-primary-light" />
-                                    </div>
-                                    <div>
-                                        <span className="text-muted font-bold block mb-1 group-hover:text-foreground transition-colors">
-                                            {feature}
-                                        </span>
-                                        <span className="text-sm text-secondary">
-                                            Técnica profesional y productos de primera calidad.
-                                        </span>
-                                    </div>
-                                </li>
-                            ))}
+                            {
+                            service.features &&
+                                service.features.map((feature, idx) => (
+                                    <li key={idx} className="flex items-start gap-4 group">
+                                        <div className="mt-1 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center border border-foreground/20 group-hover:border-primary transition-colors">
+                                            <Check className="w-3.5 h-3.5 text-primary-light" />
+                                        </div>
+                                        <div>
+                                            <span className="text-muted font-bold block mb-1 group-hover:text-foreground transition-colors">
+                                                {feature}
+                                            </span>
+                                            <span className="text-sm text-secondary">
+                                                Técnica profesional y productos de primera calidad.
+                                            </span>
+                                        </div>
+                                    </li>
+                                ))}
                         </ul>
 
                         <div className="mt-10 pt-8 border-t border-foreground/5 text-center">
@@ -191,7 +185,7 @@ export const Servicio = ({ servicio }: Props) => {
                                 {/* Título y Precio */}
                                 <div className="flex justify-between items-baseline mb-3">
                                     <h3 className={`text-2xl text-foreground uppercase tracking-wide font-title font-semibold`}>
-                                        {servicio.title}
+                                        {service.title}
                                     </h3>
                                     {servicio.price && (
                                         <span className="text-xl font-bold text-primary font-title">
@@ -202,7 +196,7 @@ export const Servicio = ({ servicio }: Props) => {
 
                                 {/* Descripción */}
                                 <p className="text-sm text-muted leading-relaxed mb-6">
-                                    {servicio.desc}
+                                    {servicio.short_desc}
                                 </p>
 
                                 {/* Lista de características (Checklist) */}

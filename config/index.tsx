@@ -713,8 +713,8 @@ export const SITE_CONFIG: SiteConfig = {
         ],
     },
     design: {
-        background: 'peluqueria-regular',
-        paleta: 'blue',
+        background: 'barberia-urbana',
+        paleta: 'violet',
         typography: 'barberiaUrbana'
     }
 }

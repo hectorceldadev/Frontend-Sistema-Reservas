@@ -9,8 +9,6 @@ const page = async () => {
 
   const services = await getServices()
 
-  console.log(services)
-
   return (
     <div>
       <Hero />

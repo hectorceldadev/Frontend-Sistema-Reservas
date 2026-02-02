@@ -71,7 +71,7 @@ const Servicios = ({ services }: ServiciosTypes) => {
                                         </h3>
                                         {service.price && (
                                             <span className="text-xl font-bold text-primary font-title">
-                                                {service.price}
+                                                {service.price}€
                                             </span>
                                         )}
                                     </div>
