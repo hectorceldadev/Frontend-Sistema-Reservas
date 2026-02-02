@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Instagram, Heart, Phone, Facebook, Twitter, type LucideIcon } from 'lucide-react'
 import { SITE_CONFIG } from '@/config'
+import { ServiceDB } from '@/lib/types/databaseTypes';
 
 // Diccionario de Iconos
 const iconMap: Record<string, LucideIcon> = {
@@ -12,12 +13,14 @@ const iconMap: Record<string, LucideIcon> = {
     Twitter: Twitter,
 };
 
-export const Footer = () => {
+interface FooterTypes {
+    services: ServiceDB[]
+}
+
+export const Footer = ({ services }: FooterTypes) => {
     const currentYear = new Date().getFullYear()
     // Extraemos config global y de servicios para la columna dinámica
     const { footer, servicios } = SITE_CONFIG;
-
-    const serviceLinks = servicios.items.slice(0, 4);
 
     return (
         <footer className="bg-background-secondary border-t border-foreground/10 relative z-50 text-muted font-regular">
@@ -79,7 +82,7 @@ export const Footer = () => {
                     <div>
                         <h4 className="font-bold text-primary mb-2 uppercase tracking-wide">Servicios</h4>
                         <ul className="space-y-4 text-sm">
-                            {serviceLinks.map((service, i) => (
+                            {services.slice(0, 4).map((service, i) => (
                                 <li key={i}>
                                     <Link
                                         href={`/servicios/${service.slug}`}

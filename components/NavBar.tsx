@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 // 1. Importamos el tipo 'LucideIcon' para que TypeScript sea feliz
 import { ChevronDown, Menu, X, CalendarDays, ArrowUpRight, Scissors, User, Zap, Star, type LucideIcon } from 'lucide-react'
 import { SITE_CONFIG } from '@/config'
+import { ServiceDB } from '@/lib/types/databaseTypes'
 
 // 2. Definimos que este objeto tiene claves string y valores LucideIcon
 const iconMap: Record<string, LucideIcon> = {
@@ -16,7 +17,11 @@ const iconMap: Record<string, LucideIcon> = {
   // Añade aquí más si los necesitas en el futuro
 };
 
-export default function Navbar() {
+interface NavBarTypes {
+  services: ServiceDB[]
+}
+
+export default function Navbar({ services }: NavBarTypes) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const { navBar, servicios } = SITE_CONFIG;
@@ -77,7 +82,7 @@ export default function Navbar() {
 
                           {/* Grid Servicios */}
                           <div className="grid grid-cols-2 gap-4 relative z-10">
-                            {servicios.items.slice(0, 6).map((service, i) => {
+                            {services.slice(0, 6).map((service, i) => {
                               // 4. Arreglado: TypeScript ya sabe que esto es seguro
                               const Icon = iconMap[service.icon] || Star;
 
@@ -95,7 +100,7 @@ export default function Navbar() {
                                       {service.title}
                                     </h4>
                                     <span className="text-[10px] text-muted font-bold uppercase tracking-wider">
-                                      {service.price} · Reservar
+                                      {service.price}€ · Reservar
                                     </span>
                                   </div>
                                   <ArrowUpRight className="w-4 h-4 text-muted-foreground opacity-0 -translate-x-2 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all" />
@@ -168,7 +173,7 @@ export default function Navbar() {
                       Nuestros Servicios
                     </p>
                     <div className="grid grid-cols-1 gap-3">
-                      {servicios.items.slice(0, 4).map((service, i) => {
+                      {services.slice(0, 4).map((service, i) => {
                         const Icon = iconMap[service.icon] || Star;
                         return (
                           <Link

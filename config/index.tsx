@@ -1,4 +1,7 @@
 export interface SiteConfig {
+    supabaseData: {
+        businessId: string
+    }
     metadataInfo: {
         title: {
             default: string
@@ -246,6 +249,9 @@ export interface SiteConfig {
 }
 
 export const SITE_CONFIG: SiteConfig = {
+    supabaseData: {
+        businessId: 'b0880124-97ad-4560-8542-fbc31ff46a8f'
+    },
     metadataInfo: {
         title: {
             default: '[NOMBRE] | [Peluquería en [PUEBLO]]',

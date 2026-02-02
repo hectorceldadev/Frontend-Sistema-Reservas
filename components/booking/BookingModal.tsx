@@ -14,6 +14,8 @@ import StepForm from './StepForm';
 import StepPayment from './StepPayment';
 import StepSuccess from './StepSuccess';
 import { supabase } from '@/lib/supabase';
+import { getServices } from '@/lib/data';
+import { ServiceDB } from '@/lib/types/databaseTypes';
 
 export interface Booking {
   services: Service[];
@@ -55,11 +57,15 @@ export interface BusySlot {
   staff_id: string
 }
 
-export default function BookingModal() {
+interface BookingModalTypes {
+  services: ServiceDB[]
+}
+
+export default function BookingModal({ services }: BookingModalTypes) {
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [availableServices, setAvailableServices] = useState<Service[] | []>([])
+  const [availableServices, setAvailableServices] = useState<ServiceDB[] | []>(services)
   const [staff, setStaff] = useState<Profile[] | []>([])
   const [schedules, setSchedules] = useState<StaffSchedule[] | []>([])
   const [busySlots, setBusySlots] = useState<BusySlot[] | []>([])
@@ -123,12 +129,10 @@ export default function BookingModal() {
     const fetchData = async () => {
       try {
         setIsLoading(true)
-        const [servicesRes, staffRes, schedulesRes] = await Promise.all([
-          supabase.from('services').select('*').eq('business_id', BUSINESS_ID),
+        const [staffRes, schedulesRes] = await Promise.all([
           supabase.from('profiles').select('*').eq('business_id', BUSINESS_ID),
           supabase.from('staff_schedules').select('*').eq('business_id', BUSINESS_ID)
         ])
-        if (servicesRes.error) throw servicesRes.error
         if (staffRes.error) throw staffRes.error
         if (schedulesRes.error) throw schedulesRes.error
 
@@ -138,7 +142,6 @@ export default function BookingModal() {
           role: 'Primer hueco libre'
         }
 
-        setAvailableServices(servicesRes.data || [])
         setStaff([anyStaff, ...(staffRes.data || [])])
         setSchedules(schedulesRes.data || [])
       }

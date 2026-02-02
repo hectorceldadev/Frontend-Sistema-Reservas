@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Scissors, User, Zap, Star, ArrowUpRight, LucideIcon, Check } from 'lucide-react'
 import { SITE_CONFIG } from '@/config'
+import { ServiceDB } from '@/lib/types/databaseTypes';
 
 const iconMap: Record<string, LucideIcon> = {
     Scissors: Scissors,
@@ -12,7 +13,11 @@ const iconMap: Record<string, LucideIcon> = {
     ArrowUpRight: ArrowUpRight
 };
 
-const Servicios = () => {
+interface ServiciosTypes {
+    services: ServiceDB[]
+}
+
+const Servicios = ({ services }: ServiciosTypes) => {
     
     const { servicios } = SITE_CONFIG;
 
@@ -34,7 +39,7 @@ const Servicios = () => {
 
                 {/* --- GRID DE SERVICIOS (Máximo 4 en Home) --- */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 stagger-container">
-                    {servicios.items.map((service, i) => {
+                    {services.map((service, i) => {
                         const Icon = iconMap[service.icon] || Scissors;
 
                         return (
@@ -55,7 +60,7 @@ const Servicios = () => {
                                         </div>
                                         {/* ID decorativo o numero */}
                                         <span className={`text-4xl text-muted/10 font-title group-hover:text-muted/40 transition-colors font-black`}>
-                                            0{servicios.items.indexOf(service) + 1}
+                                            0{services.indexOf(service) + 1}
                                         </span>
                                     </div>
 
@@ -73,21 +78,22 @@ const Servicios = () => {
 
                                     {/* Descripción */}
                                     <p className="text-sm text-muted leading-relaxed mb-6 line-clamp-2">
-                                        {service.desc}
+                                        {service.short_desc}
                                     </p>
 
                                     {/* Footer Card (Flecha) */}
                                     <div className='mt-auto flex justify-between items-center pt-4'>
                                         <div className='flex flex-col justify-start gap-1 items-start'>
                                             {
-                                                service.features.map((feature) => (
-                                                    <div key={feature} className='flex gap-2 items-center'>
-                                                        <Check className='text-primary w-4 h-4'/>
-                                                        <span className='text-muted text-xs'>
-                                                            {feature}
-                                                        </span>
-                                                    </div>
-                                                ))
+                                                service.features &&
+                                                    service.features.map((feature) => (
+                                                        <div key={feature} className='flex gap-2 items-center'>
+                                                            <Check className='text-primary w-4 h-4'/>
+                                                            <span className='text-muted text-xs'>
+                                                                {feature}
+                                                            </span>
+                                                        </div>
+                                                    ))
                                             }
                                         </div>
                                         <ArrowUpRight className='w-6 h-6 text-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300' />

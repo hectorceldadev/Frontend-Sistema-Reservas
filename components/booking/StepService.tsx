@@ -3,11 +3,12 @@
 import { Check, Clock, LoaderIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Booking, Service } from './BookingModal';
+import { ServiceDB } from '@/lib/types/databaseTypes';
 
 interface StepServiceProps {
   booking: Booking;
   setBooking: (data: Booking) => void;
-  servicesList: Service[]
+  servicesList: ServiceDB[]
   isLoading: boolean
 }
 
