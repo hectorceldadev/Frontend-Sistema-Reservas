@@ -142,8 +142,8 @@ export const BookingEmail = ({
                             <Text className="m-0 text-brand text-sm font-semibold">{staffName}</Text>
                         </Column>
                         <Column>
-                            <Text className="m-0 text-textLight text-xs" align="right">Total estimado</Text>
-                            <Text className="m-0 text-brand text-sm font-bold" align="right">{totalPrice}€</Text>
+                            <Text className="m-0 text-textLight text-xs text-right">Total estimado</Text>
+                            <Text className="m-0 text-brand text-sm font-bold text-right">{totalPrice}€</Text>
                         </Column>
                     </Row>
                 </Section>

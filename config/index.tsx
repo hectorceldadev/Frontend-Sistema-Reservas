@@ -65,7 +65,7 @@ export interface SiteConfig {
         title: string
         desc: string
         ctaPrimary: {
-            href: string
+            href?: string
             icon: string
             text: string
         }

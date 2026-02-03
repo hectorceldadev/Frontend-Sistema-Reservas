@@ -1,4 +1,4 @@
-import BookingEmail from "@/components/emails/BookingEmail"
+import { BookingEmail } from "@/components/emails"
 import { render } from "@react-email/render"
 import { NextResponse } from "next/server"
 import { Resend } from "resend"

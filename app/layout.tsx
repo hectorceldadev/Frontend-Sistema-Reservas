@@ -1,12 +1,12 @@
 import "./globals.css";
 import BackgroundSelector from "@/components/backgrounds/BackgroundSelector";
-import { Anton, Geist, Lato, Open_Sans, Oswald, Playfair_Display } from "next/font/google";
+import { Anton, Geist } from "next/font/google";
 import { SITE_CONFIG } from "@/config";
 import { Metadata, Viewport } from "next";
 import JsonLd from "@/components/schema/JsonLd";
 import { Toaster } from "sonner"
 import { BookingProvider } from "@/context/BookingContext";
-import BookingModal from "@/components/booking/BookingModal";
+import { BookingModal } from "@/components/booking";
 import { getServices } from "@/lib/data";
 
 const { metadataInfo } = SITE_CONFIG
@@ -22,12 +22,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: metadataInfo.title.default, 
   description: metadataInfo.description,
-  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Barberia Estilo',
-    startupImage: [] //**COLOCAR IMAGENES  */
+    title: metadataInfo.openGraph.siteName || 'Barberia Estilo',
+    startupImage: []
   },
   formatDetection: {
     telephone: false
@@ -64,35 +63,6 @@ const geist = Geist({
   display: 'swap'
 })
 
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  weight: ['400', '600', '700'], 
-  variable: '--font-playfair',
-  display: 'swap'
-})
-
-const lato = Lato({
-  subsets: ['latin'],
-  weight: ['300', '400', '700'],
-  variable: '--font-lato',
-  display: 'swap'
-})
-
-const oswald = Oswald({
-  subsets: ['latin'],
-  weight: ['400', '500', '700'], // Usaremos 500 o 700 para títulos
-  variable: '--font-oswald',
-  display: 'swap'
-})
-
-// 3. CONFIGURAMOS OPEN SANS (Lectura Amable)
-const openSans = Open_Sans({
-  subsets: ['latin'],
-  weight: ['300', '400', '600'],
-  variable: '--font-opensans',
-  display: 'swap'
-})
-
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
 
   const services = await getServices() || []
@@ -100,7 +70,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="es">
       <body
-        className={`antialiased ${geist.variable} ${anton.variable} ${playfair.variable} ${lato.variable} ${oswald.variable} ${openSans.variable}`}
+        className={`antialiased ${geist.variable} ${anton.variable}`}
         data-theme={SITE_CONFIG.design.paleta}
         data-font={SITE_CONFIG.design.typography}
       >
