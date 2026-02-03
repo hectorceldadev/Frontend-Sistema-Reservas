@@ -17,6 +17,7 @@ import { supabase } from '@/lib/supabase';
 import { getServices } from '@/lib/data';
 import { ServiceDB } from '@/lib/types/databaseTypes';
 import { useBooking } from '@/context/BookingContext';
+import { SITE_CONFIG } from '@/config';
 
 export interface Booking {
   services: Service[];
@@ -74,6 +75,8 @@ export default function BookingModal({ services }: BookingModalTypes) {
 
   const { isOpen, closeModal, openModal } = useBooking()
 
+  const businessId = SITE_CONFIG.supabaseData.businessId
+
   // Referencia para el contenedor del scroll
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -125,26 +128,49 @@ export default function BookingModal({ services }: BookingModalTypes) {
 
   }, [booking.client])
 
-  const BUSINESS_ID = 'b0880124-97ad-4560-8542-fbc31ff46a8f'
+  useEffect(() => {
+
+    const fetchStaff = async () => {
+      if (!isOpen) return
+      try {
+        setIsLoading(true)
+        const response = await fetch(`/api/staff?businessId=${businessId}`)
+        const data = await response.json()
+
+        if (!response.ok) throw new Error(data.error || 'Error cargando staff');
+
+        const staffData = data.staff || []
+
+        if (staffData.length === 1) {
+          setStaff(staffData)
+          setBooking(prev => ({ ...prev, staff: staffData[0] }))
+        } else {
+          const anyStaff: Profile = {
+            id: 'any',
+            full_name: 'Cualquiera',
+            role: 'Primer hueco libre'
+          }
+          setStaff([ anyStaff, ...staffData ])
+        }
+      } catch (err) {
+          console.error('Error cargando staff', err);
+          toast.error('Error cargando profesionales');
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchStaff()
+  }, [isOpen, businessId])
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true)
-        const [staffRes, schedulesRes] = await Promise.all([
-          supabase.from('profiles').select('*').eq('business_id', BUSINESS_ID),
-          supabase.from('staff_schedules').select('*').eq('business_id', BUSINESS_ID)
+        const [schedulesRes] = await Promise.all([
+          supabase.from('staff_schedules').select('*').eq('business_id', businessId)
         ])
-        if (staffRes.error) throw staffRes.error
         if (schedulesRes.error) throw schedulesRes.error
 
-        const anyStaff: Profile = {
-          id: 'any',
-          full_name: 'Cualquiera',
-          role: 'Primer hueco libre'
-        }
-
-        setStaff([anyStaff, ...(staffRes.data || [])])
         setSchedules(schedulesRes.data || [])
       }
       catch (error) {
@@ -156,13 +182,13 @@ export default function BookingModal({ services }: BookingModalTypes) {
       }
     }
     fetchData()
-  }, [])
+  }, [businessId])
 
   useEffect(() => {
     const fechBusySlots = async () => {
       if (!booking.date || !booking.staff) return
 
-      const selectedDateString = format(booking.date, 'yyyy-MM--dd')
+      const selectedDateString = format(booking.date, 'yyyy-MM-dd')
       const staffId = booking.staff.id
 
       try {
@@ -171,7 +197,7 @@ export default function BookingModal({ services }: BookingModalTypes) {
         let query = supabase
           .from('bookings')
           .select('start_time, end_time, staff_id')
-          .eq('business_id', BUSINESS_ID)
+          .eq('business_id', businessId)
           .eq('date', selectedDateString)
           .eq('status', 'confirmed')
 
@@ -384,7 +410,7 @@ export default function BookingModal({ services }: BookingModalTypes) {
       const { data: newBooking, error: errorBooking } = await supabase
         .from('bookings')
         .insert({
-          business_id: BUSINESS_ID,
+          business_id: businessId,
           customer_id: customerId,
           staff_id: asignedStaffId,
           date: format(booking.date, 'yyyy-MM-dd'),
@@ -465,7 +491,7 @@ export default function BookingModal({ services }: BookingModalTypes) {
       {/* BOTÓN FLOTANTE DE RESERVA */}
       <button
         onClick={openModal}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-foreground text-background px-6 py-4 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all font-bold text-lg group"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-primary text-foreground px-6 py-4 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all font-bold text-lg group"
       >
         <CalendarDays size={24} className="group-hover:animate-pulse" />
         <span className="hidden sm:inline">Reservar Cita</span>
