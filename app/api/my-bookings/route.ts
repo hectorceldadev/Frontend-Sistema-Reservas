@@ -27,7 +27,7 @@ export async function POST (request: Request) {
                 `)
                 .eq('customer_email', email)
                 .eq('business_id', businessId)
-                .order('date', { ascending: false })
+                .order('date', { ascending: true })
             
         if (error) {
             console.error('❌ Error Supabase:', error)

@@ -6,6 +6,7 @@ import { es } from 'date-fns/locale';
 import { Booking } from './BookingModal';
 import PushNotificationManager from '../push/PushNotificationManager';
 import { generateGoogleCalendarUrl, downloadIcsFile } from '@/lib/calendar';
+import Link from 'next/link';
 
 interface StepSuccessProps {
   booking: Booking;
@@ -19,7 +20,7 @@ export default function StepSuccess({ booking, onClose, customerId }: StepSucces
     <div className="flex flex-col h-full overflow-hidden stagger-container">
       
       {/* 1. HEADER (Más aireado) */}
-      <div className="text-center pt-8 pb-2 shrink-0">
+      <div className="text-center pt-8 pb-4 shrink-0">
         <div className="flex justify-center mb-4">
            <div className="h-16 w-16 bg-foreground text-background rounded-full flex items-center justify-center shadow-xl animate-in zoom-in duration-300">
              <Check size={32} strokeWidth={3} />
@@ -68,7 +69,7 @@ export default function StepSuccess({ booking, onClose, customerId }: StepSucces
                 href={generateGoogleCalendarUrl(booking)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 py-3.5 rounded-xl border border-foreground/20 bg-primary hover:bg-secondary transition-colors text-sm font-bold text-foreground group"
+                className="flex items-center justify-center gap-2 py-3.5 rounded-xl border border-foreground/20 bg-secondary hover:bg-secondary transition-colors text-sm font-bold text-foreground group"
             >
                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 424 432">
                     <path fill="currentColor" d="M214 186v-1h201q3 12 3 36q0 93-56.5 150.5T213 429q-88 0-150.5-62T0 216T62 65T213 3q87 0 144 57l-57 56q-33-33-86-33q-54 0-92.5 39.5t-38.5 95t38.5 94.5t92.5 39q31 0 55-9.5t37.5-24.5t20.5-29.5t10-27.5H214v-74z"></path>
@@ -94,13 +95,14 @@ export default function StepSuccess({ booking, onClose, customerId }: StepSucces
         />
 
         {/* Botón Finalizar */}
-        <button
+        <Link
+          href='/reserva'
           onClick={onClose}
-          className="w-full group bg-primary text-foreground py-4 rounded-xl font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-md text-sm"
+          className="w-full group bg-foreground text-background-secondary py-3 rounded-xl font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-md text-md"
         >
           Finalizar 
           <ArrowRight className='group-hover:translate-x-1 transition-transform duration-150' size={18} />
-        </button>
+        </Link>
       </div>
 
     </div>

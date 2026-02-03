@@ -108,8 +108,8 @@ export default function PushNotificationManager({ customerId, email }: PushManag
   // CASO B: Ya suscrito (Verde)
   if (isSubscribed) {
     return (
-      <div className="flex items-center justify-center gap-2 p-2 bg-green-600 border border-green-100 rounded-xl text-foreground">
-         <BellRing size={16} />
+      <div className="flex items-center justify-center gap-2 p-1 bg-background-secondary border border-foreground/20 rounded-xl text-foreground">
+         <BellRing size={14}  className='rotate-10'/>
          <span className="text-sm font-bold">Recordatorios activos</span>
          {isInstallable && (
            <button onClick={installPWA} className="ml-2 text-[10px] underline hover:text-green-900">
