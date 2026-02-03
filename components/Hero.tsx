@@ -77,11 +77,11 @@ const Hero = () => {
                             {/* Botón Secundario */}
                             <Link
                                 href={hero.ctaSecondary.href}
-                                className="group w-full sm:w-auto rounded-xl border border-foreground/20 bg-background/10 backdrop-blur-sm px-8 py-4 text-foreground transition-all hover:border-primary hover:bg-background active:scale-95"
+                                className="group w-full sm:w-auto bg-background-secondary rounded-xl border border-foreground/20 backdrop-blur-sm px-8 py-4 text-foreground transition-all hover:border-primary hover:bg-background active:scale-95"
                             >
                                 <div className="flex items-center justify-center gap-2 font-bold uppercase tracking-wide text-sm sm:text-base">
                                     {hero.ctaSecondary.text}
-                                    <IconSecondary className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                                    <IconSecondary className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
                                 </div>
                             </Link>
                         </div>
