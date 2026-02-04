@@ -1,153 +1,96 @@
 import { createClient } from "@supabase/supabase-js";
-import { getDate } from "date-fns";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import { NextResponse } from "next/server";
+import { ServiceDB } from '../../../../lib/types/databaseTypes';
 
 const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function POST (request: Request) {
+export async function POST(request: Request) {
     try {
-        const { body } = await request.json()
+        const { businessId, bookingDate, bookingTime, staffId, services, client, paymentMethod } = await request.json()
 
-        const { 
-            client,
-            date, 
-            time,
-            staffId,
-            serviceIds,
-            businessId
-        } = body
-
-        if (!client || !date || !time || !staffId || !serviceIds?.length) {
+        if (!businessId || !bookingDate || !bookingTime || !staffId || !services || services.length === 0 || !client) {
             return NextResponse.json({ error: 'Faltan datos obligatorios' }, { status: 400 })
         }
 
-        console.log(`📅 Procesando reserva para: ${client.email} el ${date} a las ${time}`)
+        const servicesIds = services.map((s: ServiceDB) => s.id)
 
-        const { data: services, error: servicesError } = await supabaseAdmin
+        const { data: dbServices, error: servicesError } = await supabaseAdmin
             .from('services')
-            .select('id, price, duration, title')
-            .eq('id', serviceIds)
+            .select('id, title, price, duration')
+            .eq('business_id', businessId)
+            .in('id', servicesIds)
 
-        if (servicesError || !services) {
-            return NextResponse.json({ error: 'Error al validar los servicios' }, { status: 400 })
+        if (servicesError || !dbServices || dbServices.length === 0) {
+            return NextResponse.json({ error: 'No se pudieron validar los servicios o los precios' }, { status: 400 })
         }
 
-        const totalPrice = services.reduce((acc, s) => acc + s.price, 0)
-        const totalDuration = services.reduce((acc, s) => acc + s.duration, 0)
-
-        const [ hours, minutes ] = time.split(':').map(Number)
-        const startDate = new Date()
-        startDate.setHours(hours, minutes, 0, 0)
-
-        const bookingStartMins = hours * 60 + minutes
-        const bookingEndMins = bookingStartMins + totalDuration
-
-        const endTimeISO = new Date(startDate.getTime() + totalDuration * 60000).toISOString()
-        const startTimeISO = startDate.toISOString()
-
-        let assignedStaffId = staffId
-
-        const dayOfWeek = getDate(new Date(date))
-
-        const { data: schedules } = await supabaseAdmin
-            .from('staff_schedules')
-            .select('*')
-            .eq('business_id', businessId)
-            .eq('day_of_week', dayOfWeek)
-            .eq('is_working', true)
-
-        const { data: busySlots } = await supabaseAdmin
-            .from('bookings')
-            .select('start_time, end_time, staff_id')
-            .eq('business_id', businessId)
-            .eq('date', date)
-            .neq('status', 'cancelled')
-
-        if (assignedStaffId === 'any') {
-            const availableStaff = schedules?.find(schedule => {
-                const [ startH, startM ] = schedule.start_time.split(':').map(Number)
-                const [ endH, endM ] = schedule.end_time.split(':').map(Number)
-                const shiftStart = startH * 60 + startM
-                const shiftEnd = endH * 60 + endM
-
-                if (bookingStartMins < shiftStart || bookingEndMins > shiftEnd) return false
-
-                if (schedule.break_start && schedule.break_end) {
-                    const [ bStartH, bStartM ] = schedule.break_start.split(':').map(Number)
-                    const [ bEndH, bEndM ] = schedule.break_end.split(':').map(Number)
-                    const breakStart = bStartH * 60 + bStartM
-                    const breakEnd = bEndH * 60 + bEndM
-                    
-                    if (bookingStartMins < breakEnd && bookingEndMins > breakStart) return false
-                }
-
-                const hasConflict = busySlots?.some(slot => {
-                    if (slot.staff_id !== schedule.staff_id) return false
-
-                    const slotStart = new Date(slot.start_time)
-                    const slotEnd = new Date(slot.end_time)
-                    const slotStartMins = slotStart.getHours() * 60 + slotStart.getMinutes()
-                    const slotEndMins = slotEnd.getHours() * 60 + slotEnd.getMinutes()
-
-                    return (bookingStartMins < slotEndMins && bookingEndMins > slotStartMins)
-                })
-
-                return !hasConflict
-
-            })
-
-            if (!availableStaff) {
-                return NextResponse.json({ error: 'Lo siento, ya no quedan huecos disponibles para esta hora' }, { status: 400 })
-            }
-            assignedStaffId = assignedStaffId.staff_id
-        } else {
-            const isBusy = busySlots?.some(slot => {
-                if (slot.staff_id !== assignedStaffId) return false
-
-                const slotStart = new Date(slot.start_time)
-                const slotEnd = new Date(slot.end_time)
-                const slotStartMins = slotStart.getHours() * 60 + slotStart.getMinutes()
-                const slotEndMins = slotEnd.getHours() * 60 + slotEnd.getMinutes()
-                
-                return (bookingStartMins < slotEndMins && bookingEndMins > slotStartMins)
-            })
-
-            if (isBusy) {
-                return NextResponse.json({ error: 'El profesional seleccionado ya ha sido reservado en ese horario.' }, { status: 409})
-            }
+        if (dbServices.length !== services.length) {
+            return NextResponse.json({ error: 'Algunos servicios solicitados no son validos' }, { status: 400 })
         }
+
+        const safeTotalPrice = dbServices.reduce((acc, s) => acc + s.price, 0)
+        const safeTotalDuration = dbServices.reduce((acc, s) => acc + s.duration, 0)
 
         const { data: existingCustomer } = await supabaseAdmin
             .from('customers')
             .select('id')
             .eq('email', client.email)
-            .eq('business_id', businessId)
             .single()
 
         let customerId = existingCustomer?.id
 
         if (customerId) {
-            await supabaseAdmin.from('customers').update({
-                full_name: client.name,
-                phone: client.phone
-            })
+            await supabaseAdmin
+                .from('customers')
+                .upsert({
+                    phone: client.phone,
+                    full_name: client.name
+                })
+                .eq('id', customerId)
         } else {
-            const { data: newCustomer, error: customerError } = await supabaseAdmin
+            const { data: newCustomer, error: createError } = await supabaseAdmin
                 .from('customers')
                 .insert({
                     full_name: client.name,
-                    email: client.email,
                     phone: client.phone,
-                    business_id: businessId
+                    email: client.email
                 })
                 .select()
                 .single()
-            
-            if (customerError) throw customerError
+
+            if (createError) {
+                return NextResponse.json({ error: 'Error creando el cliente: ', createError }, { status: 500 })
+            }
             customerId = newCustomer.id
+        }
+
+        const [hours, minutes] = bookingTime.split(':').map(Number)
+        const startTime = new Date(bookingDate)
+        startTime.setHours(hours, minutes, 0, 0)
+
+        const endTime = new Date(startTime.getTime() + safeTotalDuration * 60000)
+
+        let assignedStaffId = staffId
+
+        if (assignedStaffId === 'any') {
+            const dayOfWeek = startTime.getDay()
+            const { data: candidates } = await supabaseAdmin
+                .from('staff_schedules')
+                .select('staff_id')
+                .eq('business_id', businessId)
+                .eq('day_of_week', dayOfWeek)
+                .eq('is_working', true)
+
+            if (candidates && candidates.length > 0) {
+                assignedStaffId = candidates[0].staff_id
+            } else {
+                return NextResponse.json({ error: 'No se pudo asignar un profesional automáticamente' })
+            }
         }
 
         const { data: newBooking, error: bookingError } = await supabaseAdmin
@@ -156,41 +99,81 @@ export async function POST (request: Request) {
                 business_id: businessId,
                 customer_id: customerId,
                 staff_id: assignedStaffId,
-                date: date,
-                start_time: startTimeISO,
-                end_time: endTimeISO,
-                status: 'confirmed', // O 'pending_payment' si integras Stripe
-                total_price: totalPrice,
+                date: format(startTime, 'yyyy-MM-dd'),
+                start_time: startTime.toISOString(),
+                end_time: endTime.toISOString(),
+                status: paymentMethod === 'card' ? 'pending_payment' : 'confirmed',
+                total_price: safeTotalPrice, // <--- PRECIO SEGURO
+                payment_method: paymentMethod,
                 customer_name: client.name,
                 customer_email: client.email,
                 customer_phone: client.phone
             })
-            .select()
+            .select('*, staff:profiles(full_name)')
             .single()
 
-        if (bookingError) throw bookingError
+        if (bookingError || !newBooking) {
+            return NextResponse.json({ error: 'Error al cargar la reserva: ', bookingError }, { status: 500 })
+        }
 
-        const itemsToInsert = services.map(s => ({
+        const itemsToInsert = dbServices.map(s => ({
             booking_id: newBooking.id,
             service_id: s.id,
-            price: s.price
+            service_name: s.title,
+            price: s.price,
+            duration: s.duration
         }))
 
         const { error: itemsError } = await supabaseAdmin
             .from('booking_items')
             .insert(itemsToInsert)
 
-        if (itemsError) throw itemsError
+        if (itemsError) {
+            return NextResponse.json({ error: 'Error guardando servicios: ', itemsError }, { status: 500 })
+        }
 
+        if (paymentMethod !== 'card') {
+            const serviceNames = dbServices.map(s => s.title)
+            const staffName = newBooking.staff?.full_name || 'El equipo'
+            const formattedDate = format(startTime, "EEEE d 'de' MMMM", { locale: es })
+
+            const protocol = request.headers.get('x-forwarded-proto') || 'http'
+            const host = request.headers.get('host')
+            const appUrl = `${protocol}://${host}`
+
+            fetch(`${appUrl}/api/emails`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    customerName: client.name,
+                    email: client.email,
+                    date: format(startTime, 'dd/MM/yyyy'),
+                    time: bookingTime,
+                    services: serviceNames,
+                    price: safeTotalPrice,
+                    staffName: staffName,
+                    bookingId: newBooking.id
+                })
+            }).catch(e => console.error('Error email: ', e))
+
+            fetch(`${appUrl}/api/notifications/send`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: client.email,
+                    title: '✅ ¡Reserva Confirmada!',
+                    message: `Hola ${client.name}, tu cita es el ${formattedDate} a las ${bookingTime}`,
+                    url: `${appUrl}/reserva`
+                })
+            }).catch(e => console.error('Error push: ', e))
+        }
         return NextResponse.json({
             success: true,
             bookingId: newBooking.id,
-            customer_id: customerId,
-            totalPrice,
-            staffId: assignedStaffId
+            customerId
         })
-    } catch (error: any) {
-        console.error('💥 Error creando reserva:', error)
-        return NextResponse.json({ error: error.message || 'Error interno del servidor' }, { status: 500 })
+    } catch (error) {
+        console.error('SERVER ERROR: ', error)
+        return NextResponse.json({ error }, { status: 500 })
     }
 }

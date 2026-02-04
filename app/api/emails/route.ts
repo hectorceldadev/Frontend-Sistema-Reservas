@@ -14,7 +14,7 @@ export async function POST (request: Request) {
         console.log("📨 Preparando email para:", email)
 
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http:localhost:3000'
-        const cancelUrl = `${appUrl}/cancelar?id=${bookingId}`
+        const cancelUrl = `${appUrl}/reserva`
 
         const emailHTML = await render(
             BookingEmail({
