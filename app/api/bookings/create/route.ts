@@ -9,6 +9,11 @@ const supabaseAdmin = createClient(
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+const timeToMins = (time: string) => {
+    const [h, m] = time.split(':').map(Number)
+    return h * 60 + m
+}
+
 export async function POST(request: Request) {
     try {
         const { businessId, bookingDate, bookingTime, staffId, services, client, paymentMethod } = await request.json()
@@ -79,21 +84,61 @@ export async function POST(request: Request) {
         // Calculamos el final sumando milisegundos
         const endTime = new Date(startTime.getTime() + safeTotalDuration * 60000)
 
+        const startMins = hours * 60 + minutes
+        const endMins = startMins + safeTotalDuration
+
         let assignedStaffId = staffId
 
         if (assignedStaffId === 'any') {
             const dayOfWeek = startTime.getDay()
             const { data: candidates } = await supabaseAdmin
                 .from('staff_schedules')
-                .select('staff_id')
+                .select('*')
                 .eq('business_id', businessId)
                 .eq('day_of_week', dayOfWeek)
                 .eq('is_working', true)
 
-            if (candidates && candidates.length > 0) {
-                assignedStaffId = candidates[0].staff_id
+            const candidatesIds = candidates?.map(c => c.staff_id) || []
+            const { data: existingBookings } = await supabaseAdmin
+                .from('bookings')
+                .select('staff_id, start_time, end_time')
+                .eq('business_id', businessId)
+                .eq('date', bookingDate)
+                .in('staff_id', candidatesIds)
+                .neq('status', 'cancelled')
+                .neq('status', 'rejected')
+
+            const validCandidate = candidates?.find(candidate => {
+                const shiftStart = timeToMins(candidate.start_time)
+                const shiftEnd = timeToMins(candidate.end_time)
+
+                if (startMins < shiftStart || endMins > shiftEnd) return false
+
+                if (candidate.break_start && candidate.break_end) {
+                    const breakStart = timeToMins(candidate.break_start)
+                    const breakEnd = timeToMins(candidate.break_end)
+
+                    if (startMins < breakEnd && endMins > breakStart) return false
+                }
+
+                const myBookings = existingBookings?.filter(b => b.staff_id === candidate.staff_id) || []
+
+                const hasConflict = myBookings.some(booking => {
+                    const bStart = new Date(booking.start_time)
+                    const bEnd = new Date(booking.end_time)
+                    
+                    const bStartMins = bStart.getUTCHours() * 60 + bStart.getUTCMinutes()
+                    const bEndMins = bEnd.getUTCHours() * 60 + bEnd.getUTCMinutes()
+
+                    return (startMins < bEndMins && endMins > bStartMins)
+                })
+
+                return !hasConflict
+            })
+            if (validCandidate) {
+                assignedStaffId = validCandidate.staff_id
             } else {
-                return NextResponse.json({ error: 'No se pudo asignar un profesional automáticamente' })
+                return NextResponse.json({ error: 'Lo sentimos, el hueco ha dejado de estar disponible' }, { status: 409 })
             }
         }
 
