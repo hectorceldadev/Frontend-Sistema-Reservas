@@ -69,10 +69,14 @@ export async function POST(request: Request) {
             customerId = newCustomer.id
         }
 
+        const [year, month, day] = bookingDate.split('-').map(Number)
         const [hours, minutes] = bookingTime.split(':').map(Number)
-        const startTime = new Date(bookingDate)
-        startTime.setHours(hours, minutes, 0, 0)
 
+        // Creamos la fecha en UTC puro.
+        // Nota: month - 1 porque en JS los meses van de 0 a 11
+        const startTime = new Date(Date.UTC(year, month - 1, day, hours, minutes, 0))
+        
+        // Calculamos el final sumando milisegundos
         const endTime = new Date(startTime.getTime() + safeTotalDuration * 60000)
 
         let assignedStaffId = staffId
@@ -99,7 +103,7 @@ export async function POST(request: Request) {
                 business_id: businessId,
                 customer_id: customerId,
                 staff_id: assignedStaffId,
-                date: format(startTime, 'yyyy-MM-dd'),
+                date: bookingDate,
                 start_time: startTime.toISOString(),
                 end_time: endTime.toISOString(),
                 status: paymentMethod === 'card' ? 'pending_payment' : 'confirmed',
@@ -137,6 +141,8 @@ export async function POST(request: Request) {
             const staffName = newBooking.staff?.full_name || 'El equipo'
             const formattedDate = format(startTime, "EEEE d 'de' MMMM", { locale: es })
 
+            const emailDateBase = new Date(`${bookingDate}T00:00:00`)
+
             const protocol = request.headers.get('x-forwarded-proto') || 'http'
             const host = request.headers.get('host')
             const appUrl = `${protocol}://${host}`
@@ -147,7 +153,7 @@ export async function POST(request: Request) {
                 body: JSON.stringify({
                     customerName: client.name,
                     email: client.email,
-                    date: format(startTime, 'dd/MM/yyyy'),
+                    date: format(emailDateBase, 'dd/MM/yyyy'),
                     time: bookingTime,
                     services: serviceNames,
                     price: safeTotalPrice,
