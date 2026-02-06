@@ -84,7 +84,7 @@ export default function BookingModal({ services }: BookingModalTypes) {
     date: undefined,
     time: null,
     client: null,
-    paymentMethod: null,
+    paymentMethod: 'venue',
   });
 
   useEffect(() => {

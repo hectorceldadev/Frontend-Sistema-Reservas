@@ -108,7 +108,8 @@ export async function POST(request: Request) {
                 .neq('status', 'cancelled')
                 .neq('status', 'rejected')
 
-            const validCandidate = candidates?.find(candidate => {
+            const shuffledCandidates = candidates?.sort(() => 0.5 - Math.random())
+            const validCandidate = shuffledCandidates?.find(candidate => {
                 const shiftStart = timeToMins(candidate.start_time)
                 const shiftEnd = timeToMins(candidate.end_time)
 

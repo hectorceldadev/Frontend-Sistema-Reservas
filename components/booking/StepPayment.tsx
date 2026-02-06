@@ -1,126 +1,111 @@
-'use client';
+'use client'
 
-import { CreditCard, Store, ShieldCheck } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Booking, Service } from './BookingModal';
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
+import { Calendar, Clock, User, Scissors, MapPin, Wallet } from 'lucide-react'
+import { Booking } from './BookingModal'
+
+// --- IMPORTS DE STRIPE (Comentados para el futuro) ---
+// import { useEffect, useState } from 'react'
+// import { loadStripe } from '@stripe/stripe-js'
+// import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
+// import { Loader2 } from 'lucide-react'
+// const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 interface StepPaymentProps {
-  booking: Booking;
-  setBooking: (data: Booking) => void;
+  booking: Booking
+  setBooking: (booking: Booking) => void
 }
 
-export default function StepPayment({ booking, setBooking }: StepPaymentProps) {
+export default function StepPayment({ booking }: StepPaymentProps) {
   
-  const handleSelect = (method: 'card' | 'venue') => {
-    setBooking({ ...booking, paymentMethod: method });
-  };
+  // Calculamos el total
+  const totalDuration = booking.services.reduce((acc, s) => acc + s.duration, 0)
+  const totalPrice = booking.services.reduce((acc, s) => acc + s.price, 0)
 
-  const totalPrice = booking.services.reduce((total: number, s: Service) => total + s.price, 0);
+  // Formateamos fecha para mostrarla bonita
+  const formattedDate = booking.date 
+    ? format(booking.date, "EEEE d 'de' MMMM", { locale: es }) 
+    : ''
 
   return (
-    <div className="space-y-4 animate-in slide-in-from-right-8 fade-in duration-500 pb-4 stagger-container">
+    // AÑADIDO: h-full overflow-hidden para bloquear el scroll
+    <div className="h-full flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500 font-regular">
       
-      {/* HEADER */}
+      {/* Título */}
       <div className="flex flex-col items-start">
-        <h3 className="text-foreground font-bold font-title text-xl">Método de pago</h3>
-        <p className="text-muted text-md">Elige cómo prefieres abonar el servicio.</p>
+        <h3 className="text-foreground font-bold text-xl font-title">Resumen de tu cita</h3>
+        <p className="text-muted text-md">Revisa los datos antes de confirmar.</p>
       </div>
 
-      {/* RESUMEN DEL TOTAL */}
-      <div className="bg-primary px-4 py-1 rounded-2xl flex justify-between items-center border border-foreground/5">
-        <span className="text-foreground text-sm font-medium">Total a pagar</span>
-        <span className="text-lg font-bold font-title text-foreground">{totalPrice}€</span>
-      </div>
-
-      {/* OPCIONES DE PAGO */}
-      <div className="grid grid-cols-1 gap-4">
+      {/* Tarjeta de Resumen */}
+      <div className="bg-background-secondary/50 border border-border rounded-2xl p-5 flex flex-col gap-2 shadow-sm">
         
-        <button
-          onClick={() => handleSelect('card')}
-          className={cn(
-            "relative flex items-center gap-4 p-4 md:p-5 rounded-2xl border transition-all duration-300 text-left group",
-            "hover:scale-[1.01] hover:shadow-md",
-            booking.paymentMethod === 'card'
-              ? "border-primary bg-primary/5 ring ring-primary/20"
-              : "bg-background-secondary border border-foreground hover:border-foreground/10"
-          )}
-        >
-          <div className={cn(
-            "w-12 h-12 rounded-full flex items-center justify-center transition-colors shrink-0",
-            booking.paymentMethod === 'card' ? "bg-primary text-background" : "bg-foreground/5 text-muted-foreground group-hover:bg-foreground/10"
-          )}>
-            <CreditCard size={24} />
-          </div>
-          
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-                <h4 className={cn("font-bold font-title text-lg", booking.paymentMethod === 'card' ? "text-primary" : "text-foreground")}>
-                    Pago con Tarjeta
-                </h4>
-                <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                    Seguro
+        {/* Servicios */}
+        <div className="flex flex-col gap-3 pb-2 border-b border-border/50">
+            <div className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider">
+                <Scissors size={14} />
+                <span>Servicios</span>
+            </div>
+            {booking.services.map((s) => (
+                <div key={s.id} className="flex justify-between items-center text-sm">
+                    <span className="text-foreground font-medium">{s.title}</span>
+                    <span className="text-muted">{s.price}€</span>
+                </div>
+            ))}
+        </div>
+
+        {/* Detalles Cita */}
+        <div className="grid grid-cols-2 gap-4 pb-4 border-b border-border/50">
+            <div className="flex flex-col gap-1">
+                <span className="flex items-center gap-1.5 text-xs text-muted font-medium">
+                    <Calendar size={12} /> Fecha
+                </span>
+                <span className="text-sm font-semibold capitalize text-foreground">
+                    {formattedDate}
                 </span>
             </div>
-            <p className="text-xs text-muted leading-relaxed">
-                Reserva tu hueco al instante. Procesado seguro vía Stripe.
-            </p>
-          </div>
+            <div className="flex flex-col gap-1">
+                <span className="flex items-center gap-1.5 text-xs text-muted font-medium">
+                    <Clock size={12} /> Hora
+                </span>
+                <span className="text-sm font-semibold text-foreground">
+                    {booking.time} ({totalDuration} min)
+                </span>
+            </div>
+            <div className="flex flex-col gap-1">
+                <span className="flex items-center gap-1.5 text-xs text-muted font-medium">
+                    <User size={12} /> Profesional
+                </span>
+                <span className="text-sm font-semibold text-foreground">
+                    {booking.staff?.full_name || 'Cualquiera'}
+                </span>
+            </div>
+        </div>
 
-          {/* Radio Button Visual */}
-          <div className={cn(
-            "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
-            booking.paymentMethod === 'card' ? "border-primary" : "border-muted"
-          )}>
-             {booking.paymentMethod === 'card' && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
-          </div>
-        </button>
+        {/* Método de Pago (Fijo: Local) */}
+        <div className="bg-primary/5 rounded-xl p-3 flex items-center justify-between border border-primary/10">
+            <div className="flex items-center gap-3">
+                <div className="bg-background p-2 rounded-lg text-primary shadow-sm">
+                    <MapPin size={18} />
+                </div>
+                <div className="flex flex-col">
+                    <span className="text-sm font-bold text-foreground">Pago en el local</span>
+                    <span className="text-xs text-muted">Pagarás al terminar tu cita</span>
+                </div>
+            </div>
+            <div className="text-primary">
+                <Wallet size={18} />
+            </div>
+        </div>
 
-        {/* OPCIÓN 1: EN EL LOCAL */}
-        <button
-          onClick={() => handleSelect('venue')}
-          className={cn(
-            "relative flex items-center gap-4 p-4 md:p-5 rounded-2xl border transition-all duration-300 text-left group",
-            "hover:scale-[1.01] hover:shadow-md",
-            booking.paymentMethod === 'venue'
-              ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-              : "bg-background-secondary border-foreground hover:border-foreground/10"
-          )}
-        >
-          <div className={cn(
-            "w-12 h-12 rounded-full flex items-center justify-center transition-colors shrink-0",
-            booking.paymentMethod === 'venue' ? "bg-primary text-background" : "bg-foreground/5 text-muted-foreground group-hover:bg-foreground/10"
-          )}>
-            <Store size={24} />
-          </div>
-          
-          <div className="flex-1">
-            <h4 className={cn("font-bold font-title text-lg", booking.paymentMethod === 'venue' ? "text-primary" : "text-foreground")}>
-                Pagar en el local
-            </h4>
-            <p className="text-xs text-muted leading-relaxed">
-                Paga en efectivo o tarjeta una vez termine tu corte. Sin cargos por adelantado.
-            </p>
-          </div>
-
-          {/* Radio Button Visual */}
-          <div className={cn(
-            "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
-            booking.paymentMethod === 'venue' ? "border-primary" : "border-muted"
-          )}>
-             {booking.paymentMethod === 'venue' && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
-          </div>
-        </button>
-
-        {/* OPCIÓN 2: ONLINE (TARJETA) */}
-        
+        {/* Total Final */}
+        <div className="flex justify-between items-center pt-2">
+            <span className="text-lg font-bold text-foreground">Total a pagar</span>
+            <span className="text-2xl font-title font-bold text-primary">{totalPrice}€</span>
+        </div>
 
       </div>
-
-      <div className="flex items-center justify-center gap-2  opacity-60">
-        <ShieldCheck size={14} className="text-muted" />
-        <span className="text-[10px] text-muted uppercase tracking-wider font-medium">Pagos encriptados y seguros</span>
-      </div>
-
     </div>
-  );
+  )
 }
