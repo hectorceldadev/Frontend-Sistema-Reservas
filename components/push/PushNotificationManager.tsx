@@ -6,6 +6,7 @@ import { urlBase64ToUint8Array } from '@/utils/push';
 import { toast } from 'sonner'; 
 import { Booking } from '../booking/BookingModal';
 import { BellRing } from 'lucide-react';
+import { SITE_CONFIG } from '@/config';
 
 interface PushManagerProps {
   customerId: string;
@@ -55,7 +56,8 @@ export default function PushNotificationManager({ customerId, email }: PushManag
           subscription,
           email,
           userAgent: navigator.userAgent,
-          customerId
+          customerId,
+          businessId: SITE_CONFIG.supabaseData.businessId
         })
       });
 
@@ -69,7 +71,7 @@ export default function PushNotificationManager({ customerId, email }: PushManag
           email,
           title: '✅ ¡Reserva Confirmada!',
           message: 'Gracias por activar los avisos. Te recordaremos tu cita por aquí.',
-          url: window.location.origin
+          url: `${window.location.origin}/reserva`
         })
       });
 

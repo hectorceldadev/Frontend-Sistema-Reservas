@@ -13,8 +13,6 @@ import StepDate from './StepDate';
 import StepForm from './StepForm';
 import StepPayment from './StepPayment';
 import StepSuccess from './StepSuccess';
-import { supabase } from '@/lib/supabase';
-import { getServices } from '@/lib/data';
 import { ServiceDB } from '@/lib/types/databaseTypes';
 import { useBooking } from '@/context/BookingContext';
 import { SITE_CONFIG } from '@/config';

@@ -110,7 +110,7 @@ export default function MyBookingsPage() {
         const response = await fetch('/api/cancel', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ bookingId, email })
+            body: JSON.stringify({ bookingId, email, businessId: SITE_CONFIG.supabaseData.businessId })
         })
 
         const data = await response.json()

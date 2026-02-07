@@ -30,16 +30,10 @@ export default function StepPayment({ booking }: StepPaymentProps) {
 
   return (
     // AÑADIDO: h-full overflow-hidden para bloquear el scroll
-    <div className="h-full flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500 font-regular">
+    <div className="h-full overflow-hidden flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500 font-regular">
       
-      {/* Título */}
-      <div className="flex flex-col items-start">
-        <h3 className="text-foreground font-bold text-xl font-title">Resumen de tu cita</h3>
-        <p className="text-muted text-md">Revisa los datos antes de confirmar.</p>
-      </div>
-
       {/* Tarjeta de Resumen */}
-      <div className="bg-background-secondary/50 border border-border rounded-2xl p-5 flex flex-col gap-2 shadow-sm">
+      <div className="bg-background-secondary/50 border border-foreground/20 rounded-2xl p-5 flex flex-col gap-4 shadow-sm">
         
         {/* Servicios */}
         <div className="flex flex-col gap-3 pb-2 border-b border-border/50">

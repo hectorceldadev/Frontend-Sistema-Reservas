@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 
 export async function POST (request: Request) {
     try {
-        const { subscription, email, userAgent, customerId } = await request.json() 
+        const { subscription, email, userAgent, customerId, businessId } = await request.json() 
 
         if (!subscription || !email) {
             return NextResponse.json({ error: 'Faltan datos' }, { status: 400 })
@@ -18,8 +18,9 @@ export async function POST (request: Request) {
             user_email: email,
             user_agent: userAgent,
             customer_id: customerId,
+            business_id: businessId,
             subscription: subscription
-        }, { onConflict: 'user_email, subscription' })
+        }, { onConflict: 'business_id,user_email, subscription' })
 
         if (error) {
             console.error('Supabase error: ', error)

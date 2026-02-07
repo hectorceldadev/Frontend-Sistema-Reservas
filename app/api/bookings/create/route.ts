@@ -45,6 +45,7 @@ export async function POST(request: Request) {
             .from('customers')
             .select('id')
             .eq('email', client.email)
+            .eq('business_id', businessId)
             .single()
 
         let customerId = existingCustomer?.id
@@ -53,23 +54,26 @@ export async function POST(request: Request) {
             await supabaseAdmin
                 .from('customers')
                 .upsert({
+                    id: customerId,
                     phone: client.phone,
-                    full_name: client.name
+                    full_name: client.name,
+                    email: client.email,
+                    business_id: businessId
                 })
-                .eq('id', customerId)
         } else {
             const { data: newCustomer, error: createError } = await supabaseAdmin
                 .from('customers')
                 .insert({
                     full_name: client.name,
                     phone: client.phone,
-                    email: client.email
+                    email: client.email,
+                    business_id: businessId
                 })
                 .select()
                 .single()
 
             if (createError) {
-                return NextResponse.json({ error: 'Error creando el cliente: ', createError }, { status: 500 })
+                return NextResponse.json({ error: 'Error creando el cliente: ', details: createError }, { status: 500 })
             }
             customerId = newCustomer.id
         }
@@ -168,6 +172,7 @@ export async function POST(request: Request) {
 
         const itemsToInsert = dbServices.map(s => ({
             booking_id: newBooking.id,
+            business_id: businessId,
             service_id: s.id,
             service_name: s.title,
             price: s.price,
