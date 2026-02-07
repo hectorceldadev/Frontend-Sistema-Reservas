@@ -188,7 +188,7 @@ export default function BookingModal({ services }: BookingModalTypes) {
             date: undefined,
             time: null,
             client: prev.client, // <--- CLAVE: Mantenemos los datos del cliente
-            paymentMethod: null,
+            paymentMethod: 'venue',
         }));
       }, 500)
     }

@@ -9,7 +9,7 @@ export async function POST (request: Request) {
     try {
         const body = await request.json()
 
-        const { customerName, email, date, time, services, price, staffName, bookingId } = body
+        const { customerName, email, date, time, services, price, staffName } = body
 
         console.log("📨 Preparando email para:", email)
 

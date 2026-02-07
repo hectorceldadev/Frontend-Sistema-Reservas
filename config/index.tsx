@@ -709,8 +709,8 @@ export const SITE_CONFIG: SiteConfig = {
         ],
     },
     design: {
-        background: 'barberia-urbana',
-        paleta: 'violet',
+        background: 'HexBackground',
+        paleta: 'red',
         typography: 'barberiaUrbana'
     }
 }
