@@ -8,6 +8,7 @@ import { Toaster } from "sonner"
 import { BookingProvider } from "@/context/BookingContext";
 import BookingModal from "@/components/booking/BookingModal";
 import { getServices } from "@/lib/data";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const { metadataInfo } = SITE_CONFIG
 
@@ -105,6 +106,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         data-font={SITE_CONFIG.design.typography}
       >
         <JsonLd />
+        <SpeedInsights />
         <BookingProvider>
           <BackgroundSelector >
             {children}
