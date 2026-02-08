@@ -171,9 +171,9 @@ export async function POST (request: Request) {
                     date: bookingDate,
                     start_time: startTime.toISOString(),
                     end_time: endTime.toISOString(),
-                    status: paymentMethod === 'card' ? 'pending-payment' : 'confirmed',
+                    status: paymentMethod === 'card' ? 'pending_payment' : 'confirmed',
                     total_price: safeTotalPrice,
-                    paymentMethod: paymentMethod,
+                    payment_method: paymentMethod,
                     customer_name: client.name,
                     customer_email: client.email,
                     customer_phone: client.phone
