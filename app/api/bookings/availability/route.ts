@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { addQuarters, getDay, isSameDay } from "date-fns";
+import { getDay, isSameDay } from "date-fns";
 import { NextResponse } from "next/server";
 
 const supabaseAdmin = createClient(

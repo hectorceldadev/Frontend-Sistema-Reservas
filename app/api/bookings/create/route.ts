@@ -36,7 +36,7 @@ export async function POST (request: Request) {
         }
 
         const safeTotalPrice = dbServices.reduce((acc, s) => acc + s.price, 0)
-        const safeTotalDuration = dbServices.reduce((acc, s) => acc + s.duration)
+        const safeTotalDuration = dbServices.reduce((acc: number, s: { duration: number }) => acc + s.duration, 0)
 
         let customerId: string
 
