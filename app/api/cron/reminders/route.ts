@@ -64,9 +64,7 @@ export async function GET(request: Request) {
 
         // 4. PREPARAR URL BASE
         // Necesaria porque fetch en servidor requiere URL absoluta (http://...)
-        const protocol = request.headers.get('x-forwarded-proto') || 'http'
-        const host = request.headers.get('host')
-        const appUrl = `${protocol}://${host}`
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
         // 5. PROCESAMIENTO PARALELO (MAP)
         // Creamos un array de promesas. No usamos 'await' aquí dentro para que
@@ -74,12 +72,12 @@ export async function GET(request: Request) {
         const promises = bookings.map(async (booking) => {
             const timeString = format(new Date(booking.start_time), 'HH:mm')
             
-            // @ts-ignore: Supabase a veces se lía con los tipos de los joins
+            // @ts-ignore
             const businessName = booking.business?.name || 'Su centro'
             // @ts-ignore
             const staffName = booking.staff?.full_name || 'El equipo'
             
-            // @ts-ignore: Calculamos lista de servicios y precio total
+            // @ts-ignore
             const servicesList = booking.items?.map((i: any) => i.service_name) || []
             // @ts-ignore
             const totalPrice = booking.items?.reduce((acc: number, i: any) => acc + i.price, 0) || 0
@@ -108,8 +106,7 @@ export async function GET(request: Request) {
                     time: timeString, 
                     services: servicesList, 
                     price: totalPrice, 
-                    staffName: staffName,
-                    bookingId: booking.id // Útil si quieres añadir link de cancelar
+                    staffName: staffName
                 })
             })
 
