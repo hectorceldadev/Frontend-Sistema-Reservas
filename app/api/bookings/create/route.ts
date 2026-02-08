@@ -254,9 +254,9 @@ export async function POST (request: Request) {
             customerId
         })
         
-    } catch (error: any) {
+    } catch (error) {
         console.error('SERVER ERROR (POST Booking):', error)
         // Devolvemos JSON incluso si explota, para evitar el error de parsing en frontend
-        return NextResponse.json({ error: error.message || 'Error interno del servidor' }, { status: 500 })
+        return NextResponse.json({ error }, { status: 500 })
     }
 }
