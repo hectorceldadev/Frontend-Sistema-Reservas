@@ -16,6 +16,7 @@ import StepSuccess from './StepSuccess';
 import { ServiceDB } from '@/lib/types/databaseTypes';
 import { useBooking } from '@/context/BookingContext';
 import { SITE_CONFIG } from '@/config';
+import { clientFormSchema } from '@/lib/schemas';
 
 export interface Booking {
   services: Service[];
@@ -241,12 +242,11 @@ export default function BookingModal({ services }: BookingModalTypes) {
 
     // PASO 4: AHORA VALIDAMOS EL EMAIL TAMBIÉN
     if (step === 4) {
-      const { name, phone, email } = booking.client || {};
-      const hasName = (name?.length ?? 0) > 2;
-      const hasPhone = (phone?.length ?? 0) > 6;
-      const hasEmail = (email?.length ?? 0) > 3 && email?.includes('@'); // Validación básica de email
-
-      return hasName && hasPhone && hasEmail;
+      if (!booking.client) return false;
+      
+      // safeParse devuelve { success: true } si cumple todas las reglas (regex telf, email, etc.)
+      const result = clientFormSchema.safeParse(booking.client);
+      return result.success;
     }
 
     if (step === 5) return !!booking.paymentMethod;

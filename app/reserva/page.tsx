@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { useBooking } from '@/context/BookingContext';
 import { SITE_CONFIG } from '@/config';
+import { emailSearchSchema } from '@/lib/schemas';
 
 // Interfaz
 interface BookingHistoryItem {
@@ -77,10 +78,17 @@ export default function MyBookingsPage() {
 
   const handleManualSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.includes('@')) {
-      toast.error('Introduce un email válido');
+    
+    // Validamos el email usando el esquema de Zod
+    const result = emailSearchSchema.safeParse({ email });
+
+    if (!result.success) {
+      // Mostramos el mensaje de error que definimos en schemas.ts
+      toast.error(result.error.issues[0].message);
       return;
     }
+    
+    // Si pasa la validación, buscamos
     executeSearch(email);
     toast.success('Buscando citas...');
   };

@@ -1,28 +1,69 @@
 'use client';
 
-import { User, Phone, Mail, MessageSquare, ShieldCheck } from 'lucide-react';
+import { useState } from 'react';
+import { User, Phone, Mail, MessageSquare, ShieldCheck, AlertCircle } from 'lucide-react';
 import { Booking } from './BookingModal';
+import { clientFormSchema } from '@/lib/schemas'; // Importamos el esquema
+import { z } from 'zod';
 
 interface StepFormProps {
   booking: Booking;
-  setBooking: (data: Booking) => void;
+  setBooking: React.Dispatch<React.SetStateAction<Booking>>;
 }
 
 export default function StepForm({ booking, setBooking }: StepFormProps) {
   
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+  // Estado local para guardar los errores de validación
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Valores actuales (o vacíos por defecto)
+  const { name = '', phone = '', email = '', comment = '' } = booking.client || {};
+
+  // Función para validar un campo individualmente
+  // Función para validar un campo individualmente
+  const validateField = (field: 'name' | 'email' | 'phone' | 'comment', value: string) => {
+    // 1. Extraemos la regla específica del campo
+    const fieldSchema = clientFormSchema.pick({ [field]: true } as any);
     
+    // 2. Usamos safeParse en lugar de parse. NO explota, devuelve un objeto result.
+    const result = fieldSchema.safeParse({ [field]: value });
+    
+    if (!result.success) {
+      // Si falla, accedemos a .issues (es la propiedad nativa, más segura que .errors)
+      const errorMessage = result.error.issues[0].message;
+      
+      setErrors(prev => ({ ...prev, [field]: errorMessage }));
+    } else {
+      // Si pasa la validación, borramos el error de ese campo si existía
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name: fieldName, value } = e.target;
+    
+    // 1. Actualizamos el estado global de la reserva
     setBooking({
       ...booking,
       client: {
         ...(booking.client || { name: '', phone: '', email: '', comment: '' }),
-        [name]: value
+        [fieldName]: value
       }
     });
+
+    // 2. (Opcional) Si quieres validar en tiempo real mientras escribe, descomenta esto:
+    // validateField(fieldName as any, value);
   };
 
-  const { name = '', phone = '', email = '', comment = '' } = booking.client || {};
+  // Validamos cuando el usuario sale del input (onBlur)
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name: fieldName, value } = e.target;
+      validateField(fieldName as any, value);
+  }
 
   return (
     <div className="space-y-6 animate-in slide-in-from-right-8 fade-in duration-500 pb-4">
@@ -40,51 +81,69 @@ export default function StepForm({ booking, setBooking }: StepFormProps) {
         <div className="space-y-1.5">
             <label className="text-sm font-bold text-foreground ml-1">Nombre completo *</label>
             <div className="relative group">
-                <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-primary transition-colors" />
+                <User size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${errors.name ? 'text-red-500' : 'text-muted group-focus-within:text-primary'}`} />
                 <input 
                     type="text" 
                     name="name"
                     value={name}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     placeholder="Ej: Alex García"
-                    className="w-full bg-background-secondary border border-foreground/10 rounded-xl py-3 pl-10 pr-4 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground placeholder:text-muted/50"
+                    className={`w-full bg-background-secondary border rounded-xl py-3 pl-10 pr-4 outline-none transition-all text-foreground placeholder:text-muted/50 
+                        ${errors.name 
+                            ? 'border-red-500 focus:ring-2 focus:ring-red-500/20' 
+                            : 'border-foreground/10 focus:ring-2 focus:ring-primary/20 focus:border-primary'
+                        }`}
                 />
             </div>
+            {errors.name && <p className="text-xs text-red-500 flex items-center gap-1 ml-1 animate-in slide-in-from-left-2"><AlertCircle size={10}/> {errors.name}</p>}
         </div>
 
         {/* TELÉFONO */}
         <div className="space-y-1.5">
             <label className="text-sm font-bold text-foreground ml-1">Teléfono móvil *</label>
             <div className="relative group">
-                <Phone size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-primary transition-colors" />
+                <Phone size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${errors.phone ? 'text-red-500' : 'text-muted group-focus-within:text-primary'}`} />
                 <input 
                     type="tel" 
                     name="phone"
                     value={phone}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     placeholder="Ej: 600 123 456"
-                    className="w-full bg-background-secondary border border-foreground/10 rounded-xl py-3 pl-10 pr-4 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground placeholder:text-muted/50"
+                    className={`w-full bg-background-secondary border rounded-xl py-3 pl-10 pr-4 outline-none transition-all text-foreground placeholder:text-muted/50 
+                        ${errors.phone 
+                            ? 'border-red-500 focus:ring-2 focus:ring-red-500/20' 
+                            : 'border-foreground/10 focus:ring-2 focus:ring-primary/20 focus:border-primary'
+                        }`}
                 />
             </div>
+            {errors.phone && <p className="text-xs text-red-500 flex items-center gap-1 ml-1 animate-in slide-in-from-left-2"><AlertCircle size={10}/> {errors.phone}</p>}
         </div>
 
-        {/* EMAIL (AHORA OBLIGATORIO) */}
+        {/* EMAIL */}
         <div className="space-y-1.5">
             <label className="text-sm font-bold text-foreground ml-1">Email *</label>
             <div className="relative group">
-                <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-primary transition-colors" />
+                <Mail size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${errors.email ? 'text-red-500' : 'text-muted group-focus-within:text-primary'}`} />
                 <input 
                     type="email" 
                     name="email"
                     value={email}
                     onChange={handleChange}
-                    placeholder="nombre@ejemplo.com" // Placeholder ayuda al usuario
-                    className="w-full bg-background-secondary border border-foreground/10 rounded-xl py-3 pl-10 pr-4 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground placeholder:text-muted/50"
+                    onBlur={handleBlur}
+                    placeholder="nombre@ejemplo.com"
+                    className={`w-full bg-background-secondary border rounded-xl py-3 pl-10 pr-4 outline-none transition-all text-foreground placeholder:text-muted/50 
+                        ${errors.email 
+                            ? 'border-red-500 focus:ring-2 focus:ring-red-500/20' 
+                            : 'border-foreground/10 focus:ring-2 focus:ring-primary/20 focus:border-primary'
+                        }`}
                 />
             </div>
+            {errors.email && <p className="text-xs text-red-500 flex items-center gap-1 ml-1 animate-in slide-in-from-left-2"><AlertCircle size={10}/> {errors.email}</p>}
         </div>
 
-        {/* COMENTARIOS (Opcional) */}
+        {/* COMENTARIOS */}
         <div className="space-y-1.5">
             <label className="text-sm font-bold text-foreground ml-1">¿Algún comentario? <span className="text-muted font-normal text-xs">(Opcional)</span></label>
             <div className="relative group">
@@ -93,11 +152,13 @@ export default function StepForm({ booking, setBooking }: StepFormProps) {
                     name="comment"
                     value={comment}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     rows={3}
                     placeholder="Ej: Tengo la piel sensible..."
                     className="w-full bg-background-secondary border border-foreground/10 rounded-xl py-3 pl-10 pr-4 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground placeholder:text-muted/50 resize-none"
                 />
             </div>
+            {errors.comment && <p className="text-xs text-red-500 flex items-center gap-1 ml-1"><AlertCircle size={10}/> {errors.comment}</p>}
         </div>
 
       </div>
