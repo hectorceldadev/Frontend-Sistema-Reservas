@@ -7,10 +7,16 @@ import { Scissors, Users, Trophy, Star, LucideIcon } from 'lucide-react'
 import Image from 'next/image'
 import { useRef, useState } from 'react'
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { BusinessDB, ProfileDB } from '@/lib/types/databaseTypes'
 
 gsap.registerPlugin(ScrollTrigger)
 
-export const SobreNosotros = () => {
+interface SobreNosotrosTypes {
+    staff: ProfileDB[]
+    business: BusinessDB
+}
+
+export const SobreNosotros = ({ staff, business }: SobreNosotrosTypes) => {
     
     const { sobreNosotros } = SITE_CONFIG
 
@@ -130,13 +136,13 @@ export const SobreNosotros = () => {
                         {/* Centramos la imagen horizontalmente en su columna */}
                         <div className="relative aspect-4/5 w-[80%] md:w-[65%] mx-auto rounded-3xl overflow-hidden bg-background-secondary border border-foreground/20 group">
                             <Image
-                                src={sobreNosotros.image}
+                                src={business.hero_image_url}
                                 alt="Imagen Sobre Nosotros"
                                 fill
                                 className="object-cover transition-transform duration-700 group-hover:scale-110"
                             />
                             {/* Overlay degradado */}
-                            <div className="absolute inset-0 bg-linear-to-t from-primary/10 via-transparent to-transparent opacity-80" />
+                            <div className="absolute inset-0 bg-linear-to-t from-primary/30 via-transparent to-transparent opacity-80" />
                         </div>
                     </div>
                 </div>
@@ -183,18 +189,18 @@ export const SobreNosotros = () => {
                         </p>
                     </div>
                     <div className={`grid grid-cols-1 md:grid-cols-3 justify-center items-center gap-8 w-full`}>
-                        {sobreNosotros.team.map((member) => (
+                        {staff.map((member) => (
                             <div key={member.id} className="group col-span-1 flex justify-center items-center relative animate-content">
                                 <div className="aspect-2/3 w-72 transition-all duration-300 group-hover:scale-102 cursor-pointer relative rounded-2xl overflow-hidden bg-background-secondary border border-foreground/20">
                                     <Image
-                                        src={member.image}
-                                        alt={member.name}
+                                        src={member.avatar_url}
+                                        alt={member.full_name}
                                         fill
                                         className="object-cover transition-all duration-500"
                                     />
                                     <div className="absolute inset-0 bg-linear-to-t from-background/90 via-transparent to-transparent opacity-90 flex flex-col justify-end p-6">
                                         <h3 className={`text-3xl text-foreground uppercase translate-y-4 group-hover:translate-y-0 transition-transform duration-300 font-title`}>
-                                            {member.name}
+                                            {member.full_name}
                                         </h3>
                                         <p className="text-primary font-bold uppercase text-xs tracking-wider translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
                                             {member.role}

@@ -8,10 +8,15 @@ import { useGSAP } from "@gsap/react"
 import { useRef, useState } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { BusinessGalleryDB } from "@/lib/types/databaseTypes"
 
 gsap.registerPlugin(ScrollTrigger)
 
-const Galeria = () => {
+interface GaleriaTypes {
+    galleryImages: BusinessGalleryDB[]
+}
+
+const Galeria = ({ galleryImages }: GaleriaTypes) => {
 
     const { galeria, design } = SITE_CONFIG;
     
@@ -22,8 +27,8 @@ const Galeria = () => {
 
     // Duplicamos imágenes para el efecto infinito si es marquee
     const displayImages = galeria.layout === 'marquee' 
-        ? [...galeria.images, ...galeria.images] 
-        : galeria.images;
+        ? [...galleryImages, ...galleryImages] 
+        : galleryImages;
 
 
     useGSAP(() => {
@@ -126,12 +131,12 @@ const Galeria = () => {
                             className="flex items-center w-max">
                                 {displayImages.map((imagen, index) => (
                                     <div
-                                        key={`marquee-${index}`}
+                                        key={`${imagen.id}-marquee-${index}`}
                                         className="group relative mr-6 w-72 h-96 shrink-0 rounded-2xl overflow-hidden border border-foreground/10 bg-background-secondary transition-all duration-500 hover:scale-105 hover:border-primary/50 cursor-pointer"
                                     >
                                         <Image
-                                            src={imagen.src}
-                                            alt={imagen.alt}
+                                            src={imagen.image_url}
+                                            alt={imagen.description || 'Imágen de galería'}
                                             fill
                                             className={`object-cover transition-transform duration-700 group-hover:scale-110`}
                                             sizes="(max-width: 768px) 100vw, 300px"
@@ -153,14 +158,14 @@ const Galeria = () => {
                 // MODO GRID
                 <div className="max-w-7xl mx-auto px-5 lg:px-10 mb-12">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        {galeria.images.slice(0, 3).map((imagen, index) => (
+                        {galleryImages.slice(0, 3).map((imagen, index) => (
                             <div
-                                key={`grid-${index}`}
+                                key={`${imagen.id}-grid-${index}`}
                                 className="group relative aspect-square rounded-2xl overflow-hidden border border-foreground/10 bg-background-secondary transition-colors duration-300 hover:border-primary/50 animate-content"
                             >
                                 <Image
-                                    src={imagen.src}
-                                    alt={imagen.alt}
+                                    src={imagen.image_url}
+                                    alt={imagen.description || 'Imágen de galería'}
                                     fill
                                     className={`object-cover transition-transform duration-700 ${design.background === 'salon-de-belleza' ? '' : ' grayscale group-hover:grayscale-0'} group-hover:scale-110`}
                                     sizes="(max-width: 768px) 100vw, 400px"
@@ -168,7 +173,7 @@ const Galeria = () => {
                                 <div className={`absolute inset-0 bg-linear-to-t ${design.background === 'salon-de-belleza' ? 'from-foreground/30 via-foreground/10' : 'from-black/90 via-black/20'} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6`}>
                                     <div className="flex justify-between items-center">
                                         <p className="text-foreground text-sm font-bold leading-tight line-clamp-2 pr-4">
-                                            {imagen.alt}
+                                            {imagen.description}
                                         </p>
                                         <ArrowUpRight className="text-primary w-5 h-5 shrink-0" />
                                     </div>

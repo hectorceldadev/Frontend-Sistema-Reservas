@@ -1,34 +1,38 @@
 'use client'
 
-import Link from "next/link"
 import Image from "next/image"
-import { ArrowUpRight } from "lucide-react"
 import { SITE_CONFIG } from "@/config"
-import { useGSAP } from "@gsap/react"
-import { useRef, useState, useMemo } from "react"
+import { useState, useMemo } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { BusinessGalleryDB } from "@/lib/types/databaseTypes"
 
 gsap.registerPlugin(ScrollTrigger)
 
-const Galeria = () => {
+interface GaleriaTypes {
+    galleryImages: BusinessGalleryDB[]
+}
 
-    const { galeria, design } = SITE_CONFIG;
+const Galeria = ({ galleryImages }: GaleriaTypes) => {
+
+    const { galeria } = SITE_CONFIG;
 
     // ESTADO PARA FILTROS (Solo se usa si estamos en modo GRID)
     const [activeCategory, setActiveCategory] = useState("Todas");
 
     // 1. Extraemos categorías únicas dinámicamente
     const categories = useMemo(() => {
-        const cats = galeria.images.map(img => img.category);
+        const cats = galleryImages
+            .map(img => img.category)
+            .filter((c): c is string => Boolean(c))
         return ["Todas", ...Array.from(new Set(cats))];
-    }, [galeria.images]);
+    }, [galleryImages]);
 
     // 2. Filtramos las imágenes
     const filteredImages = useMemo(() => {
-        if (activeCategory === "Todas") return galeria.images;
-        return galeria.images.filter(img => img.category === activeCategory);
-    }, [activeCategory, galeria.images]);
+        if (activeCategory === "Todas") return galleryImages;
+        return galleryImages.filter(img => img.category === activeCategory);
+    }, [activeCategory, galleryImages]);
 
     return (
         <section
@@ -71,14 +75,14 @@ const Galeria = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 stagger-container">
                     {filteredImages.map((imagen, index) => (
                         <div
-                            key={`${imagen.src}-${index}`} // Key única
+                            key={`${imagen.id}-${index}`} // Key única
                             className="group relative flex flex-col animate-card"
                         >
                             {/* TARJETA IMAGEN */}
                             <div className="relative aspect-4/5 w-full overflow-hidden rounded-4xl bg-background-secondary border border-foreground/5 shadow-xl shadow-primary/5 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/10">
                                 <Image
-                                    src={imagen.src}
-                                    alt={imagen.alt}
+                                    src={imagen.image_url}
+                                    alt={imagen.description}
                                     fill
                                     className={`object-cover transition-transform duration-700 group-hover:scale-110`}
                                     sizes="(max-width: 768px) 100vw, 400px"

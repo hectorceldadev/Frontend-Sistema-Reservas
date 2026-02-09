@@ -3,17 +3,22 @@ import Galeria from "@/components/Galeria"
 import Hero from "@/components/Hero"
 import { Reviews } from "@/components/Reviews"
 import Servicios from "@/components/Servicios"
-import { getServices } from "@/lib/data"
+import { getBusiness, getServices } from "@/lib/data"
 
 const page = async () => {
 
-  const services = await getServices()
+  const [services, business] = await Promise.all([
+    getServices(),
+    getBusiness()
+  ])
+
+  const galleryImages = business?.gallery || [] 
 
   return (
     <div>
       <Hero />
       <Servicios services={services ? services : []} />
-      <Galeria />
+      <Galeria galleryImages={galleryImages} />
       <Reviews />
       <Contacto />
     </div>

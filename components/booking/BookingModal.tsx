@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, CalendarDays, ChevronLeft, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { format, getDay } from 'date-fns'
+import { format } from 'date-fns'
 import { toast } from 'sonner'; // <--- 1. IMPORTAMOS SONNER
 
 // IMPORTS DE LOS PASOS
