@@ -5,6 +5,7 @@ import Image from "next/image"
 import { CalendarDays, ArrowRight, Star, Scissors, User, MapPin, ArrowUpRight, LucideIcon } from "lucide-react"
 import { SITE_CONFIG } from "@/config"
 import { useBooking } from "@/context/BookingContext"
+import { BusinessDB } from "@/lib/types/databaseTypes"
 
 // 1. Diccionario de Iconos para los botones
 const iconMap: Record<string, LucideIcon> = {
@@ -14,7 +15,11 @@ const iconMap: Record<string, LucideIcon> = {
     // Añade aquí más si los usas en el config
 };
 
-const Hero = () => {
+interface HeroTypes {
+    business: BusinessDB
+}
+
+const Hero = ({ business }: HeroTypes) => {
     // 2. Extraemos la data del Config
     const { hero, design } = SITE_CONFIG;
 
@@ -119,14 +124,14 @@ const Hero = () => {
                         {/* Decoración */}
                         <div className="absolute -inset-4 bg-primary/20 rounded-4xl rotate-1 blur-sm hidden sm:block"></div>
 
-                        <div className="relative aspect-3/4 rounded-2xl overflow-hidden border border-foreground/10 bg-background shadow-2xl shadow-background/60">
+                        <div className="relative group aspect-3/4 rounded-2xl overflow-hidden border border-foreground/10 bg-background shadow-2xl shadow-background/60">
                             {/* IMAGEN DEL CONFIG */}
                             <Image
-                                src={hero.image}
+                                src={business.hero_image_url}
                                 alt="Imagen principal barbería"
                                 fill
                                 priority
-                                className="object-cover"
+                                className="object-cover transition-transform duration-700 group-hover:scale-105"
                             />
 
                             {/* Overlay */}

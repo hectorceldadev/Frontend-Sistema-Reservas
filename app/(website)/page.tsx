@@ -12,11 +12,13 @@ const page = async () => {
     getBusiness()
   ])
 
+  if (!business) return null
+
   const galleryImages = business?.gallery || [] 
 
   return (
     <div>
-      <Hero />
+      <Hero business={business} />
       <Servicios services={services ? services : []} />
       <Galeria galleryImages={galleryImages} />
       <Reviews />
