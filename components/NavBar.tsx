@@ -223,7 +223,7 @@ export default function Navbar({ services }: NavBarTypes) {
 
           <div className="mt-auto pt-6">
             <button
-              onClick={openModal}
+              onClick={() => openModal()}
               className="flex items-center justify-center gap-3 w-full bg-primary text-white py-5 rounded-3xl font-bold text-xl shadow-2xl shadow-primary/20 active:scale-95 transition-transform"
             >
               <CalendarDays className="w-6 h-6" />
