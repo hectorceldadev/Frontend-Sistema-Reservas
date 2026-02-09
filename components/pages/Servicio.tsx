@@ -97,7 +97,7 @@ export const Servicio = ({ service, relatedServices }: ServivioTypes) => {
 
                         <div className="flex flex-col sm:flex-row gap-4 mt-4">
                             <button
-                                onClick={openModal}
+                                onClick={() => openModal(service.id)}
                                 className="flex-1 bg-primary hover:bg-primary/80 text-foreground px-8 py-4 rounded-xl font-bold uppercase tracking-wider flex items-center justify-center gap-3 transition-all active:scale-95"
                             >
                                 <CalendarDays className="w-5 h-5" />

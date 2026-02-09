@@ -70,12 +70,11 @@ export default function BookingModal({ services }: BookingModalTypes) {
 
   const [ confirmedCustomerId, setConfirmedCustomerId ] = useState<string | null>(null)
 
-  const { isOpen, openModal, closeModal } = useBooking()
+  const { isOpen, openModal, closeModal, preSelectedServiceId } = useBooking()
   const businessId = SITE_CONFIG.supabaseData.businessId
   const scrollRef = useRef<HTMLDivElement>(null)
   const TOTAL_STEPS = 5
 
-  // ESTADO GLOBAL DE LA RESERVA
   const [booking, setBooking] = useState<Booking>({
     services: [],
     staff: null,
@@ -84,6 +83,34 @@ export default function BookingModal({ services }: BookingModalTypes) {
     client: null,
     paymentMethod: 'venue',
   });
+
+  useEffect(() => {
+    if (isOpen && preSelectedServiceId && booking.services.length === 0) {
+      const serviceFound = services.find(s => s.id === preSelectedServiceId)
+      if (serviceFound) {
+        const serviceToAdd: ServiceDB = {
+          id: serviceFound.id,
+          title: serviceFound.title,
+          price: serviceFound.price,
+          duration: serviceFound.duration,
+          short_desc: serviceFound.short_desc,
+          features: serviceFound.features,
+          full_desc: serviceFound.full_desc,
+          icon: serviceFound.icon,
+          image_url: serviceFound.image_url,
+          metadata: serviceFound.metadata,
+          slug: serviceFound.slug
+        }
+
+        setBooking(prev => ({
+          ...prev,
+          services: [serviceToAdd]
+        }))
+      }
+    }
+  }, [isOpen, preSelectedServiceId, availableServices, booking.services.length, services])
+
+  // ESTADO GLOBAL DE LA RESERVA
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -191,6 +218,18 @@ export default function BookingModal({ services }: BookingModalTypes) {
             paymentMethod: 'venue',
         }));
       }, 500)
+    } else {
+      setTimeout(() => {
+        setStep(1);
+        setBooking(prev => ({
+            services: [],
+            staff: prev.staff,
+            date: prev.date,
+            time: null,
+            client: prev.client,
+            paymentMethod: 'venue',
+        }));
+      }, 500)
     }
   };
 
@@ -270,7 +309,7 @@ export default function BookingModal({ services }: BookingModalTypes) {
     <>
       {/* BOTÓN FLOTANTE DE RESERVA */}
       <button
-        onClick={openModal}
+        onClick={() => openModal()}
         className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-primary text-foreground px-6 py-4 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all font-bold text-lg group"
       >
         <CalendarDays size={24} className="group-hover:animate-pulse" />
