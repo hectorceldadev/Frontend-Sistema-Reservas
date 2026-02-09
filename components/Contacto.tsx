@@ -78,7 +78,7 @@ export const Contacto = () => {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-12 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-12 items-start">
 
                     {/* --- LADO IZQUIERDO: FORMULARIO --- */}
                     <div className="lg:col-span-2">

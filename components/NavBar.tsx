@@ -61,7 +61,7 @@ export default function Navbar({ services }: NavBarTypes) {
             </Link>
 
             {/* NAVEGACIÓN DESKTOP */}
-            <div className="hidden md:flex items-center gap-6 lg:gap-8 font-regular">
+            <div className="hidden lg:flex items-center gap-6 lg:gap-8 font-regular">
               {navBar.navegacion.map((item, index) => {
 
                 // --- MEGA MENU SERVICIOS ---
@@ -138,13 +138,13 @@ export default function Navbar({ services }: NavBarTypes) {
             <div className="flex items-center gap-4">
               <button
               onClick={() => openModal()}
-                className="hidden md:flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-full ring ring-white/10 text-md font-bold transition-all shadow-[0_0_20px_rgba(var(--primary),0.3)] active:scale-95 uppercase tracking-wider"
+                className="hidden lg:flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-full ring ring-white/10 text-md font-bold transition-all shadow-[0_0_20px_rgba(var(--primary),0.3)] active:scale-95 uppercase tracking-wider"
               >
                 {navBar.cta.text}
               </button>
 
               <button
-                className="md:hidden p-2 text-foreground hover:text-primary transition-colors relative z-60"
+                className="lg:hidden p-2 text-foreground hover:text-primary transition-colors relative z-60"
                 onClick={() => setIsOpen(!isOpen)}
               >
                 {isOpen ? <X size={28} /> : <Menu size={28} />}
@@ -158,7 +158,7 @@ export default function Navbar({ services }: NavBarTypes) {
       {/* --- MENU MÓVIL (OVERLAY) --- */}
       <div
         className={`
-          fixed inset-0 font-regular bg-background z-40 md:hidden transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)]
+          fixed inset-0 font-regular bg-background z-40 lg:hidden transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)]
           ${isOpen ? 'translate-x-0' : 'translate-x-full'}
         `}
       >

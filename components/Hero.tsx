@@ -39,7 +39,7 @@ const Hero = ({ business }: HeroTypes) => {
         >
 
             <div className="relative z-10 max-w-7xl mx-auto px-0 sm:px-6 lg:px-8">
-                <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center stagger-container">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-8 lg:gap-16 items-center stagger-container">
 
                     {/* --- COLUMNA TEXTO --- */}
                     <div className="stagger-container flex flex-col">
@@ -61,12 +61,12 @@ const Hero = ({ business }: HeroTypes) => {
                         </h1>
 
                         {/* Descripción */}
-                        <p className="text-base sm:text-lg text-muted mb-8 sm:mb-10 leading-relaxed max-w-lg mx-auto lg:mx-0 font-medium">
+                        <p className="text-base sm:text-lg text-muted mb-8 sm:mb-10 leading-relaxed max-w-lg lg:mx-0 font-medium">
                             {hero.desc}
                         </p>
 
                         {/* Botones Dinámicos */}
-                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
+                        <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
                             
                             {/* Botón Primario */}
                             <button
@@ -120,7 +120,7 @@ const Hero = ({ business }: HeroTypes) => {
                     </div>
 
                     {/* --- COLUMNA IMAGEN --- */}
-                    <div className="relative mx-auto w-[90%] lg:w-[70%] mt-4 lg:pt-2">
+                    <div className="relative mx-auto w-[90%] md:w-full lg:w-[70%] mt-4 lg:pt-2">
                         {/* Decoración */}
                         <div className="absolute -inset-4 bg-primary/20 rounded-4xl rotate-1 blur-sm hidden sm:block"></div>
 
