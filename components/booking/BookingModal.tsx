@@ -310,7 +310,7 @@ export default function BookingModal({ services }: BookingModalTypes) {
       {/* BOTÓN FLOTANTE DE RESERVA */}
       <button
         onClick={() => openModal()}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-primary text-foreground px-6 py-4 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all font-bold text-lg group"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-primary text-foreground px-6 py-4 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all font-bold text-lg group cursor-pointer"
       >
         <CalendarDays size={24} className="group-hover:animate-pulse" />
         <span className="hidden sm:inline">Reservar Cita</span>

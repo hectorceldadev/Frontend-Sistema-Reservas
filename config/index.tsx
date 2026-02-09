@@ -253,7 +253,7 @@ export const SITE_CONFIG: SiteConfig = {
     metadataInfo: {
         title: {
             default: '[NOMBRE] | [Peluquería en [PUEBLO]]',
-            template: '%s | [[NOMBRE] Peluquería en [PUEBLO]]' // %s se sustituye por el nombre de la página (ej: "Servicios")
+            template: ' | [[NOMBRE] Peluquería en [PUEBLO]]' // %s se sustituye por el nombre de la página (ej: "Servicios")
         },
         description: 'Tu peluquería referencia en [PUEBLO]. Especialistas [ESPECIFICAMOS SEGÚN NEGOCIO] Reserva tu cita aquí ->',
         siteUrl: 'https://tunegocioeninternet.es', //** */ Pon aquí el dominio real cuando lo tengas
@@ -709,8 +709,8 @@ export const SITE_CONFIG: SiteConfig = {
         ],
     },
     design: {
-        background: 'HexBackground',
-        paleta: 'red',
+        background: 'WaveBackground',
+        paleta: 'orange',
         typography: 'barberiaUrbana'
     }
 }
