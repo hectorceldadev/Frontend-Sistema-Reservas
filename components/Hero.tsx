@@ -70,7 +70,7 @@ const Hero = ({ business }: HeroTypes) => {
                             
                             {/* Botón Primario */}
                             <button
-                                onClick={openModal}
+                                onClick={() => openModal()}
                                 className="group w-full sm:w-auto relative overflow-hidden rounded-xl bg-primary px-8 py-4 text-foreground transition-all duration-150 hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25 active:scale-95"
                             >
                                 <div className="relative z-10 flex items-center justify-center gap-2 font-bold uppercase tracking-wide text-sm sm:text-base">
