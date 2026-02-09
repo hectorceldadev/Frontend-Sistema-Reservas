@@ -634,7 +634,7 @@ export const SITE_CONFIG: SiteConfig = {
                 }
             }
         },
-        iframe: 'ej: https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d8055.387038917681!2d-0.4179848061566288!3d39.356681653906115!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd604d00336c8bb5%3A0x265a3a0c7ddaaf23!2sAvinguda%20de%20Llu%C3%ADs%20Vives%2C%2014%2C%2046460%20Silla%2C%20Val%C3%A8ncia!5e0!3m2!1ses!2ses!4v1767958245944!5m2!1ses!2ses'
+        iframe: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d11160.803650582146!2d-0.37090043283169866!3d39.46668360945023!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd604f27f56441d9%3A0x1b872da159a8de84!2sEstaci%C3%B3n%20del%20Norte!5e0!3m2!1ses!2ses!4v1770658324132!5m2!1ses!2ses'
     },
     footer: {
         logo: '[LOGO]',
@@ -649,11 +649,10 @@ export const SITE_CONFIG: SiteConfig = {
             {
                 title: "Explora",
                 items: [
-                    { text: "Inicio", href: "/" },
                     { text: "Servicios", href: "/servicios" },
                     { text: "Galería", href: "/galeria" },
                     { text: "Sobre Nosotros", href: "/sobre-nosotros" },
-                    { text: "Cita Previa", href: "https://wa.me/[34Número de teléfono]?text=Hola%20[Nombre del negocio]%quería%20reservar%cita" }
+                    { text: "Reserva", href: "/reserva" }
                 ]
             }
         ],

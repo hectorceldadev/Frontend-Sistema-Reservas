@@ -20,7 +20,7 @@ interface FooterTypes {
 export const Footer = ({ services }: FooterTypes) => {
     const currentYear = new Date().getFullYear()
     // Extraemos config global y de servicios para la columna dinámica
-    const { footer, servicios } = SITE_CONFIG;
+    const { footer } = SITE_CONFIG;
 
     return (
         <footer className="bg-background-secondary border-t border-foreground/10 relative z-50 text-muted font-regular">
@@ -64,16 +64,15 @@ export const Footer = ({ services }: FooterTypes) => {
                         <div key={idx}>
                             <h4 className="font-bold text-primary mb-2 uppercase tracking-wide">{section.title}</h4>
                             <ul className="space-y-4 text-sm">
-                                {section.items.map((item, i) => {
-                                    if (item.href === '/') return
-                                    else return (
+                                {section.items.map((item, i) => 
+                                    (
                                         <li key={i}>
                                             <Link href={item.href} className="hover:text-primary transition-colors">
                                                 {item.text}
                                             </Link>
                                         </li>
                                     )
-                                })}
+                                )}
                             </ul>
                         </div>
                     ))}

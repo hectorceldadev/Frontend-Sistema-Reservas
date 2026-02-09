@@ -78,78 +78,25 @@ export const Contacto = () => {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-12 items-start">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-12 items-start">
 
                     {/* --- LADO IZQUIERDO: FORMULARIO --- */}
                     <div className="lg:col-span-2">
-                        <div className="bg-background-secondary ring-1 ring-foreground/10 hover:ring-primary/20 transition-colors duration-300 p-8 md:p-10 rounded-3xl relative overflow-hidden group animate-content">
-
-                            <form
-                                method='POST'
-                                action={contacto.formAction}
-                                className="space-y-6 relative z-10"
-                            >
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-muted uppercase tracking-wider ml-1">Nombre</label>
-                                        <input
-                                            type="text"
-                                            name='Nombre'
-                                            placeholder="Tu nombre"
-                                            required
-                                            className="w-full px-5 py-4 rounded-xl bg-background border border-foreground/10 text-foreground placeholder-foreground/20 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-muted uppercase tracking-wider ml-1">Teléfono</label>
-                                        <input
-                                            type="tel"
-                                            name='Teléfono'
-                                            placeholder="600 000 000"
-                                            required
-                                            className="w-full px-5 py-4 rounded-xl bg-background border border-foreground/10 text-foreground placeholder-foreground/20 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-muted uppercase tracking-wider ml-1">Servicio</label>
-                                    <div className="relative">
-                                        <select
-                                            name='Servicio'
-                                            className="w-full px-5 py-4 rounded-xl bg-background border border-foreground/10 text-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all appearance-none cursor-pointer"
-                                        >
-                                            {contacto.formOptions.map((opcion, index) => (
-                                                <option key={index} value={opcion} className="bg-background text-foreground">
-                                                    {opcion}
-                                                </option>
-                                            ))}                                        </select>
-                                        {/* Flecha custom */}
-                                        <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none opacity-50 text-foreground">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-muted uppercase tracking-wider ml-1">Mensaje</label>
-                                    <textarea
-                                        rows={4}
-                                        name='Mensaje'
-                                        placeholder="Cuéntanos qué necesitas..."
-                                        className="w-full px-5 py-4 rounded-xl bg-background border border-foreground/10 text-foreground placeholder-foreground/20 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none"
-                                    ></textarea>
-                                </div>
-
-                                <button
-                                    type='submit'
-                                    className="group/btn w-full py-4 bg-primary hover:bg-primary/90 text-foreground rounded-xl font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(var(--primary),0.3)] hover:shadow-[0_0_30px_rgba(var(--primary),0.5)] flex items-center justify-center gap-2 ring ring-foreground/10"
+                        <div className="overflow-hidden rounded-2xl border border-foreground/20 h-75 lg:h-88 relative transition-all duration-700">
+                                <iframe src={contacto.iframe}
+                                    width="100%"
+                                    height="100%"
+                                    style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg)' }} //* MODO OSCURO invert(90%) hue-rotate(180deg)
+                                    allowFullScreen
+                                    loading="lazy"
+                                    referrerPolicy="no-referrer-when-downgrade"
+                                    className='rounded-2xl'
                                 >
-                                    Enviar Mensaje
-                                    <Send className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1" />
-                                </button>
-                            </form>
-                        </div>
+                                </iframe>
+                                
+                                {/* Overlay para que no sea tan brillante si el filtro CSS falla en algunos navegadores */}
+
+                            </div>
                     </div>
 
                     {/* --- LADO DERECHO: INFO Y MAPA --- */}
@@ -215,20 +162,7 @@ export const Contacto = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="overflow-hidden rounded-2xl ring ring-foreground/20 h-75 lg:h-auto relative transition-all duration-700">
-                                <iframe src={contacto.iframe}
-                                    width="100%"
-                                    height="100%"
-                                    style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg)' }}
-                                    allowFullScreen
-                                    loading="lazy"
-                                    referrerPolicy="no-referrer-when-downgrade"
-                                    className='rounded-2xl'
-                                >
-                                </iframe>
-                                {/* Overlay para que no sea tan brillante si el filtro CSS falla en algunos navegadores */}
-
-                            </div>
+                            
                         </div>
 
                         {/* Mapa Embed */}
