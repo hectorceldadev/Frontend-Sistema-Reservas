@@ -524,7 +524,7 @@ export const SITE_CONFIG: SiteConfig = {
     },
     design: {
         background: 'WaveBackground',
-        paleta: 'yellow',
+        paleta: 'blue',
         typography: 'barberiaUrbana'
     }
 }
