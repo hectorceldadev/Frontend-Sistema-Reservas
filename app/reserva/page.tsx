@@ -123,10 +123,10 @@ export default function MyBookingsPage() {
   const pastBookings = bookings.filter(b => b.date < new Date().toISOString().split('T')[0] || b.status === 'cancelled');
 
   return (
-    <div className="min-h-screen pb-20 font-regular">
+    <div className="min-h-screen pb-20 font-regular stagger-container">
 
       {/* HEADER */}
-      <div className="sticky top-0 z-20 px-6 py-4 flex justify-between items-center gap-4">
+      <div className="sticky top-0 z-20 px-6 py-4 flex justify-between items-center gap-4 stagger-container">
         <div className='flex items-center'>
             <Link href="/" className="p-2 -ml-2 rounded-full hover:bg-secondary/50 text-foreground transition-colors">
                 <ChevronLeft size={24} />
@@ -138,7 +138,7 @@ export default function MyBookingsPage() {
         </div>
         {
             email &&
-            <div className='hidden md:block bg-green-600/10 border border-green-800 px-4 py-1 rounded-full md:flex items-center gap-2'>
+            <div className='hidden bg-green-600/10 border border-green-800 px-4 py-1 rounded-full md:flex items-center gap-2'>
                 <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
@@ -148,7 +148,7 @@ export default function MyBookingsPage() {
         }
       </div>
 
-      <div className="max-w-md mx-auto px-5 space-y-8 mt-6">
+      <div className="max-w-md mx-auto px-5 space-y-8 mt-6 stagger-container">
         
         {/* BUSCADOR */}
         <div className="relative group">
@@ -376,7 +376,7 @@ function BookingDetailsModal({ booking, onClose, onCancel }: { booking: BookingH
     const totalPrice = booking.booking_items.reduce((acc, item) => acc + item.price, 0);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200 stagger-container">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
             <div className="bg-background w-full max-w-sm rounded-3xl shadow-2xl relative z-10 overflow-hidden animate-in zoom-in-95 duration-300 border border-foreground/10 flex flex-col max-h-[85vh]">
                 

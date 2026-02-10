@@ -47,7 +47,7 @@ export default function Navbar({ services, business }: NavBarTypes) {
   }, [isOpen]);
 
   return (
-    <div className="relative z-100">
+    <div className="relative z-100 stagger-container">
 
       {/* --- NAVBAR FLOTANTE --- */}
       <nav className="fixed top-4 left-1/2 -translate-x-1/2 w-[90%] md:w-[95%] max-w-7xl 
