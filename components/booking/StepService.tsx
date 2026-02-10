@@ -39,7 +39,7 @@ export default function StepService({ booking, setBooking, isLoading, servicesLi
         {[1, 2, 3, 4].map((i) => (
           <div 
             key={i} 
-            className="w-full p-7 rounded-2xl border border-foreground/50 bg-background-secondary flex items-start gap-4"
+            className="w-full p-8 rounded-2xl border border-foreground/50 bg-background-secondary flex items-start gap-4"
           >
             {/* Checkbox Skeleton */}
             <div className="mt-1 w-5 h-5 rounded-full bg-muted animate-pulse shrink-0" />
