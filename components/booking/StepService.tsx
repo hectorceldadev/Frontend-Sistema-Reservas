@@ -28,7 +28,43 @@ export default function StepService({ booking, setBooking, isLoading, servicesLi
   };
 
   if (isLoading) {
-    return <LoaderIcon className='animate-spin'/>
+    return (
+      <div className="flex flex-col gap-4 animate-in fade-in duration-500 stagger-container">
+        <div className="flex items-center justify-between">
+        <h3 className="text-xl font-bold font-title text-foreground">
+            Selecciona servicios
+        </h3>
+      </div>
+        {/* Generamos 4 esqueletos */}
+        {[1, 2, 3, 4].map((i) => (
+          <div 
+            key={i} 
+            className="w-full p-7 rounded-2xl border border-foreground/50 bg-background-secondary flex items-start gap-4"
+          >
+            {/* Checkbox Skeleton */}
+            <div className="mt-1 w-5 h-5 rounded-full bg-muted animate-pulse shrink-0" />
+            
+            <div className="flex-1 space-y-2">
+              <div className="flex justify-between items-start w-full">
+                {/* Título Skeleton */}
+                <div className="h-5 w-3/4 bg-muted animate-pulse rounded-md" />
+                {/* Precio Skeleton */}
+                <div className="h-5 w-12 bg-muted animate-pulse rounded-md" />
+              </div>
+              
+              {/* Descripción Skeleton */}
+              <div className="h-3 w-1/2 bg-muted/50 animate-pulse rounded-md" />
+              
+              {/* Duración Skeleton */}
+              <div className="flex items-center gap-1 pt-1">
+                <div className="w-3 h-3 rounded-full bg-muted/50 animate-pulse" />
+                <div className="h-3 w-16 bg-muted/50 animate-pulse rounded-md" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )
   }
 
   return (
