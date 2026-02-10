@@ -6,8 +6,9 @@ import { usePathname } from 'next/navigation'
 // 1. Importamos el tipo 'LucideIcon' para que TypeScript sea feliz
 import { ChevronDown, Menu, X, CalendarDays, ArrowUpRight, Scissors, User, Zap, Star, type LucideIcon } from 'lucide-react'
 import { SITE_CONFIG } from '@/config'
-import { ServiceDB } from '@/lib/types/databaseTypes'
+import { BusinessDB, ServiceDB } from '@/lib/types/databaseTypes'
 import { useBooking } from '@/context/BookingContext'
+import Image from 'next/image'
 
 // 2. Definimos que este objeto tiene claves string y valores LucideIcon
 const iconMap: Record<string, LucideIcon> = {
@@ -20,9 +21,10 @@ const iconMap: Record<string, LucideIcon> = {
 
 interface NavBarTypes {
   services: ServiceDB[]
+  business: BusinessDB
 }
 
-export default function Navbar({ services }: NavBarTypes) {
+export default function Navbar({ services, business }: NavBarTypes) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const { navBar } = SITE_CONFIG;
@@ -57,7 +59,7 @@ export default function Navbar({ services }: NavBarTypes) {
 
             {/* LOGO */}
             <Link href={navBar.logo.href} className="text-[42px] font-title font-extrabold tracking-tighter text-foreground hover:opacity-80 transition-opacity">
-              {navBar.logo.textOrImage}
+              {navBar.logo.text}
             </Link>
 
             {/* NAVEGACIÓN DESKTOP */}
@@ -138,7 +140,7 @@ export default function Navbar({ services }: NavBarTypes) {
             <div className="flex items-center gap-4">
               <button
               onClick={() => openModal()}
-                className="hidden lg:flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-full ring ring-white/10 text-md font-bold transition-all shadow-[0_0_20px_rgba(var(--primary),0.3)] active:scale-95 uppercase tracking-wider"
+                className="hidden lg:flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-full ring ring-white/10 text-sm font-bold transition-all shadow-[0_0_20px_rgba(var(--primary),0.3)] active:scale-95 uppercase tracking-wider"
               >
                 {navBar.cta.text}
               </button>

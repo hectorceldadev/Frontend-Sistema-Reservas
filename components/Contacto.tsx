@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { MapPin, Phone, Clock, Send, Instagram, Smartphone, type LucideIcon } from 'lucide-react'
+import { MapPin, Phone, Clock, Instagram, Smartphone, type LucideIcon } from 'lucide-react'
 import { SITE_CONFIG } from '@/config'
 import gsap from 'gsap'
 import { ScrollTrigger } from "gsap/ScrollTrigger"

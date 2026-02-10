@@ -18,7 +18,7 @@ interface StepPaymentProps {
 }
 
 export default function StepPayment({ booking }: StepPaymentProps) {
-  
+
   // Calculamos el total
   const totalDuration = booking.services.reduce((acc, s) => acc + s.duration, 0)
   const totalPrice = booking.services.reduce((acc, s) => acc + s.price, 0)
@@ -27,6 +27,23 @@ export default function StepPayment({ booking }: StepPaymentProps) {
   const formattedDate = booking.date 
     ? format(booking.date, "EEEE d 'de' MMMM", { locale: es }) 
     : ''
+
+    if (!booking.time) return null
+
+    const timeToMins = (time: string) => {
+        const [h, m] = time.split(':').map(Number)
+        return h * 60 + m
+    } 
+
+    const startMins = timeToMins(booking.time)
+    const endMins = startMins + totalDuration
+    const getEndTime = (endMins: number) => {
+        const hours = Math.floor(endMins / 60)
+        const minutes = endMins % 60
+        return `${hours.toString().length === 1 ? `0${hours}` : hours}:${minutes}` 
+    } 
+    const endTime = getEndTime(endMins)
+
 
   return (
     // AÑADIDO: h-full overflow-hidden para bloquear el scroll
@@ -64,7 +81,7 @@ export default function StepPayment({ booking }: StepPaymentProps) {
                     <Clock size={12} /> Hora
                 </span>
                 <span className="text-sm font-semibold text-foreground">
-                    {booking.time} ({totalDuration} min)
+                    {booking.time} - {endTime}
                 </span>
             </div>
             <div className="flex flex-col gap-1">

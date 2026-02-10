@@ -26,6 +26,8 @@ interface BookingEmailProps {
   businessName?: string;
   businessAddress?: string;
   cancelLink?: string;
+  logoUrl?: string,
+  businessMap?: string 
 }
 
 export const BookingEmail = ({
@@ -35,13 +37,14 @@ export const BookingEmail = ({
   services = [],
   totalPrice,
   staffName,
-  businessName = 'Barbería Estilo',
-  businessAddress = 'Calle Falsa 123, Madrid',
+  businessName,
+  businessAddress,
   cancelLink = '#',
+  businessMap,
+  logoUrl,
 }: BookingEmailProps) => {
   
   const previewText = `Reserva confirmada en ${businessName}`;
-  const logoUrl = "https://cdn-icons-png.flaticon.com/512/3504/3504067.png"; 
 
   return (
     <Html>
@@ -154,7 +157,7 @@ export const BookingEmail = ({
                      <Text className="text-brand text-sm font-medium m-0 mb-3">{businessAddress}</Text>
                      
                      <Link 
-                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(businessAddress || '')}`} //* COLOCAR GOOGLE MAPS
+                        href={businessMap} //* COLOCAR GOOGLE MAPS
                         className="text-accent text-xs font-bold underline"
                      >
                         Ver en Google Maps →

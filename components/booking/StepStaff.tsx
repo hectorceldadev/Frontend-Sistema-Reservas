@@ -39,7 +39,7 @@ export default function StepStaff({ booking, setBooking, staffList, isLoading }:
       
       <div className="flex items-center justify-between stagger-container">
         <h3 className="text-xl font-bold font-title text-foreground">
-            ¿Con quién te cortas?
+            Escoge un profesional
         </h3>
       </div>
 

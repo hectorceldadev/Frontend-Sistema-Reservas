@@ -127,7 +127,7 @@ const Hero = ({ business }: HeroTypes) => {
                         <div className="relative group aspect-3/4 rounded-2xl overflow-hidden border border-foreground/10 bg-background shadow-2xl shadow-background/60">
                             {/* IMAGEN DEL CONFIG */}
                             <Image
-                                src={business.hero_image_url}
+                                src={business.hero_image_url || hero.image}
                                 alt="Imagen principal barbería"
                                 fill
                                 priority

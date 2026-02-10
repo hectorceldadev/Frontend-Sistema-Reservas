@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Search, Calendar, Clock, MapPin, History, ArrowRight, User, ChevronLeft, Loader2, X, AlertTriangle, CheckCircle2, Scissors } from 'lucide-react';
+import { Search, Calendar, Clock, MapPin, History, ArrowRight, User, ChevronLeft, Loader2, X, AlertTriangle, CheckCircle2, Scissors, LocateIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import Link from 'next/link';
@@ -383,8 +383,11 @@ function BookingDetailsModal({ booking, onClose, onCancel }: { booking: BookingH
                 {/* Header Modal */}
                 <div className="h-28 bg-primary/15 relative flex items-center justify-center shrink-0">
                     <div className="absolute inset-0 bg-primary/5"></div>
-                    <div className="w-16 h-16 bg-background rounded-full flex items-center justify-center shadow-lg z-10 text-primary">
-                        <CheckCircle2 size={32} />
+                    <div className='flex justify-center items-center flex-col gap-2'>
+                        <div className="w-16 h-16 bg-background rounded-full flex items-center justify-center shadow-lg z-10 text-primary">
+                            <MapPin size={32} />
+                        </div>
+                        <span className='text-xs font-semibold text-primary bg-primary/20 px-2 py-0.5 rounded-full border border-primary'>{SITE_CONFIG.schemaInfo.address.street}</span>
                     </div>
                     <button onClick={onClose} className="absolute top-4 right-4 p-2 bg-background/50 backdrop-blur rounded-full hover:bg-background transition-colors text-muted hover:text-foreground z-20">
                         <X size={18} />
@@ -446,7 +449,7 @@ function BookingDetailsModal({ booking, onClose, onCancel }: { booking: BookingH
                             </div>
                             <div className="flex justify-between items-center mt-3 pt-3 border-t border-foreground/10">
                                 <p className="font-bold text-foreground text-sm">Total</p>
-                                <p className="font-black text-lg text-primary">{totalPrice}€</p>
+                                <p className="font-black text-lg text-primary font-title">{totalPrice}€</p>
                             </div>
                         </div>
                     </div>
