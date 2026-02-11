@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react';
 
 interface BookingContextType {
   isOpen: boolean;
@@ -16,23 +16,30 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   const [preSelectedServiceId, setPreSelectedServiceId] = useState<string | null>(null);
 
   // Modificamos openModal para recibir el ID
-  const openModal = (serviceId?: string) => {
+  const openModal = useCallback((serviceId?: string) => {
     if (serviceId) {
       setPreSelectedServiceId(serviceId);
     } else {
       setPreSelectedServiceId(null); // Limpiamos si se abre genérico
     }
     setIsOpen(true);
-  };
+  }, []);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setIsOpen(false);
     // Opcional: Limpiar el ID al cerrar con un pequeño delay para que no salte la UI
     setTimeout(() => setPreSelectedServiceId(null), 300);
-  };
+  }, []);
+
+  const value = useMemo(() => ({
+    isOpen,
+    preSelectedServiceId,
+    openModal,
+    closeModal
+  }), [isOpen, preSelectedServiceId, openModal, closeModal])
 
   return (
-    <BookingContext.Provider value={{ isOpen, openModal, closeModal, preSelectedServiceId }}>
+    <BookingContext.Provider value={value}>
       {children}
     </BookingContext.Provider>
   );

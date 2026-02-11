@@ -116,7 +116,7 @@ export default function BookingModal({ services }: BookingModalTypes) {
         setStep(1);
         setBooking(prev => ({
             services: [],
-            staff: prev.staff,
+            staff: null,
             date: undefined,
             time: null,
             client: prev.client,
