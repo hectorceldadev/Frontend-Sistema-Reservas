@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { useBooking } from '@/context/BookingContext';
 import { SITE_CONFIG } from '@/config';
 import { emailSearchSchema } from '@/lib/schemas';
+import PushNotificationManager from '@/components/push/PushNotificationManager';
 
 // Interfaz
 interface BookingHistoryItem {
@@ -161,19 +162,18 @@ export default function MyBookingsPage() {
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Introduce tu email..."
                         className="w-full px-3 py-3 bg-transparent border-none focus:ring-0 outline-none text-sm font-medium text-foreground placeholder:text-muted/70"
-                    />
+                        />
                     <button 
                         type="submit"
                         disabled={loading}
                         className="bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-xs font-bold hover:brightness-110 transition-all disabled:opacity-70 shrink-0 flex items-center gap-2 shadow-sm cursor-pointer"
-                    >
+                        >
                         {loading && <Loader2 size={12} className="animate-spin" />}
                         {loading ? '...' : 'Ver Citas'}
                     </button>
                 </form>
             </div>
         </div>
-
         {/* LOADING STATE */}
         {loading && !searched && (
             <div className="flex flex-col items-center justify-center py-12 text-muted animate-pulse">
@@ -263,6 +263,14 @@ export default function MyBookingsPage() {
              onCancel={handleCancelBooking}
           />
       )}
+
+      {searched && !loading && bookings.length > 0 && email && (
+             <PushNotificationManager 
+                 customerId={bookings[0]?.id || 'desconocido'} 
+                 email={email} 
+                 asModal={true} 
+             />
+        )}
 
     </div>
   );
