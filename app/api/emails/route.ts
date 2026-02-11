@@ -4,11 +4,19 @@ import { NextResponse } from "next/server"
 import { Resend } from "resend"
 import { SITE_CONFIG } from "@/config" // <--- IMPORTAMOS AQUÍ
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 export async function POST (request: Request) {
     try {
+        
         console.log("🔥 ESTOY EJECUTANDO EL CÓDIGO NUEVO - HORA: " + new Date().toISOString())
+
+        const resendApiKey = process.env.RESEND_API_KEY
+
+        if (!resendApiKey) {
+            throw new Error('⚠️ Faltan las variables de entorno de RESEND_API_KEY.')
+        }
+
+        const resend = new Resend(resendApiKey)
+
         const body = await request.json()
 
         // Solo extraemos los datos variables de la reserva

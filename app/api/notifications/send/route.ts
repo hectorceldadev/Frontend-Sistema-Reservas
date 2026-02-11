@@ -13,20 +13,20 @@ export async function POST (request: Request) {
             throw new Error('Faltan las variables de entorno de web push')
         }
 
-        webpush.setVapidDetails(
-            vapidSubject,
-            vapidPublicKey,
-            vapidPrivateKey
-        )
+        webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey)
+
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+        if (!supabaseUrl || !supabaseServiceKey) {
+            throw new Error("⚠️ Faltan las variables de entorno de Supabase.");
+        }
+
+        const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
 
         const { email, title, message, url } = await request.json()
 
         console.log(`📨 Enviando Push a: ${email}`)
-
-        const supabaseAdmin = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.SUPABASE_SERVICE_ROLE_KEY!
-        )
 
         const { data: subscriptions } = await supabaseAdmin
             .from('push_subscriptions')
