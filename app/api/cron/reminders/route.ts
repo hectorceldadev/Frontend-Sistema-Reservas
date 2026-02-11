@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
+import { es } from "date-fns/locale";
 
 
 // Configuración de Vercel
@@ -32,9 +34,15 @@ export async function GET(request: Request) {
         }
 
         // 2. CALCULAR FECHA DE MAÑANA
-        const tomorrow = new Date()
+        const timeZone = 'Europe/Madrid'
+
+        const dateStringMadrid = formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd')
+        const todayInMadrid = new Date(`${dateStringMadrid}T12:00:00Z`)
+
+        const tomorrow = new Date(todayInMadrid)
         tomorrow.setDate(tomorrow.getDate() + 1)
-        const dateString = format(tomorrow, 'yyyy-MM-dd')
+
+        const dateString = formatInTimeZone(tomorrow, timeZone, 'yyyy-MM-dd')
 
         console.log(`[CRON MASTER] Iniciando proceso para: ${dateString}`)
 
@@ -74,13 +82,13 @@ export async function GET(request: Request) {
         // Creamos un array de promesas. No usamos 'await' aquí dentro para que
         // todas las peticiones salgan disparadas a la vez.
         const promises = bookings.map(async (booking) => {
-            const timeString = format(new Date(booking.start_time), 'HH:mm')
+            const timeString = formatInTimeZone(new Date(booking.start_time), timeZone, 'HH:mm', { locale: es })
+            const dateFormatted = formatInTimeZone(new Date(booking.start_time), timeZone, 'dd/MM/yyyy', { locale: es })
             
             // @ts-ignore
             const businessName = booking.business?.name || 'Su centro'
             // @ts-ignore
             const staffName = booking.staff?.full_name || 'El equipo'
-            
             // @ts-ignore
             const servicesList = booking.items?.map((i: any) => i.service_name) || []
             // @ts-ignore
@@ -106,7 +114,7 @@ export async function GET(request: Request) {
                 body: JSON.stringify({
                     customerName: booking.customer_name, 
                     email: booking.customer_email, 
-                    date: format(new Date(booking.start_time), 'dd/MM/yyyy'), 
+                    date: dateFormatted, 
                     time: timeString, 
                     services: servicesList, 
                     price: totalPrice, 
