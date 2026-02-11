@@ -190,9 +190,7 @@ export async function POST (request: Request) {
         }
 
         // 8. INSERTAR RESERVA (Corrección payment_method)
-        const { data: newBooking, error: bookingError } = await supabaseAdmin
-            .from('bookings')
-            .insert({
+        const bookingData = {
                 business_id: businessId,
                 customer_id: customerId,
                 staff_id: assignedStaffId,
@@ -205,18 +203,10 @@ export async function POST (request: Request) {
                 customer_name: client.name,
                 customer_email: client.email,
                 customer_phone: client.phone
-            })
-            .select('*, staff:profiles(full_name)')
-            .single()
-        
-        if (bookingError || !newBooking) {
-            console.error('Error insert:', bookingError);
-            throw new Error(`Error insertando reserva: ${bookingError?.message}`)
-        }
+            }
 
         // 9. INSERTAR ITEMS
-        const itemsToInsert = dbServices.map(s => ({
-            booking_id: newBooking.id,
+        const itemsData = dbServices.map(s => ({
             business_id: businessId,
             service_id: s.id,
             price: s.price,
@@ -224,7 +214,15 @@ export async function POST (request: Request) {
             service_name: s.title
         }))
 
-        await supabaseAdmin.from('booking_items').insert(itemsToInsert)
+        const { data: newBooking, error: transactionError } = await supabaseAdmin.rpc('create_booking_with_items', {
+            p_booking_data: bookingData,
+            p_booking_items: itemsData
+        })
+
+        if (transactionError || !newBooking) {
+            console.error('Error insertando en transacción: ', transactionError)
+            return NextResponse.json({ error: transactionError }, { status: 500 })
+        }
 
         // 10. NOTIFICACIONES (Async sin await para no bloquear respuesta)
         if (paymentMethod !== 'card') {
