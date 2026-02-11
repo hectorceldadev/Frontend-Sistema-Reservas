@@ -2,12 +2,6 @@ import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { format } from "date-fns";
 
-// Inicializamos Supabase con permisos de Admin (Service Role)
-// Esto nos permite leer bookings de TODOS los negocios saltándonos el RLS.
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!  
-)
 
 // Configuración de Vercel
 // force-dynamic: Evita que Vercel cachee esta respuesta. Siempre ejecuta en vivo.
@@ -20,6 +14,16 @@ export async function GET(request: Request) {
     const startTime = Date.now()
 
     try {
+
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+        if (!supabaseUrl || !supabaseServiceKey) {
+            throw new Error("Faltan las variables de entorno de Supabase (URL o SERVICE_ROLE_KEY).");
+        }
+
+        const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
         // 1. SEGURIDAD: Verificar que quien llama es Vercel Cron
         // Si no tienes CRON_SECRET en .env.local, esta comprobación se salta (peligroso en producción)
         const authHeader = request.headers.get('authorization')

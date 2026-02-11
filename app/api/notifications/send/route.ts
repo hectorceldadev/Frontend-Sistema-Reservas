@@ -2,14 +2,23 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import webpush from 'web-push'
 
-webpush.setVapidDetails(
-    process.env.VAPID_SUBJECT!,
-    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-    process.env.VAPID_PRIVATE_KEY!
-)
-
 export async function POST (request: Request) {
     try {
+
+        const vapidSubject = process.env.VAPID_SUBJECT
+        const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+        const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY
+
+        if (!vapidSubject || !vapidPublicKey || !vapidPrivateKey) {
+            throw new Error('Faltan las variables de entorno de web push')
+        }
+
+        webpush.setVapidDetails(
+            vapidSubject,
+            vapidPublicKey,
+            vapidPrivateKey
+        )
+
         const { email, title, message, url } = await request.json()
 
         console.log(`📨 Enviando Push a: ${email}`)
