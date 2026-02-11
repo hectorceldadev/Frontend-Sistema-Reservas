@@ -172,22 +172,6 @@ export async function POST (request: Request) {
                 return NextResponse.json({ error: 'Ya no hay huecos disponibles a esta hora.' }, { status: 409 })
             }
         }
-            
-        // 7. PROTECCIÓN FINAL (Race Condition)
-        const { data: conflict } = await supabaseAdmin
-            .from('bookings')
-            .select('id')
-            .eq('business_id', businessId)
-            .eq('staff_id', assignedStaffId)
-            .neq('status', 'cancelled')
-            .neq('status', 'rejected')
-            .lt('start_time', endTime.toISOString())
-            .gt('end_time', startTime.toISOString())
-            .single()
-
-        if (conflict) {
-            return NextResponse.json({ error: 'Este hueco acaba de ser ocupado.' }, { status: 409 })
-        }
 
         // 8. INSERTAR RESERVA (Corrección payment_method)
         const bookingData = {
@@ -221,7 +205,10 @@ export async function POST (request: Request) {
 
         if (transactionError || !newBooking) {
             console.error('Error insertando en transacción: ', transactionError)
-            return NextResponse.json({ error: transactionError }, { status: 500 })
+            if (transactionError?.message?.includes('CONFLICT')) {
+                return NextResponse.json({ error: 'Lo sentimos este hueco acaba de ser reservado por otra persona. Por favor, elige otra hora.' }, { status: 409 })
+            }
+            return NextResponse.json({ error: 'Error al procesar la reserva' }, { status: 500 })
         }
 
         // 10. NOTIFICACIONES (Async sin await para no bloquear respuesta)
