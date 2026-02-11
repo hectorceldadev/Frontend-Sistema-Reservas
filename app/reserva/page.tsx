@@ -279,7 +279,7 @@ function TicketCard({ booking, isPast = false, onClick }: { booking: BookingHist
 
     const day = format(dateObj, 'd');
     const month = format(dateObj, 'MMM', { locale: es }).toUpperCase();
-    const time = booking.start_time ? booking.start_time.slice(11, 19) : '--:--';
+    const time = booking.start_time && format(booking.start_time, 'HH:mm', { locale: es })
 
     // 2. LÓGICA MULTI-SERVICIO (SOLUCIÓN AL ERROR)
     // Sumamos duraciones y determinamos el título
@@ -412,7 +412,7 @@ function BookingDetailsModal({ booking, onClose, onCancel }: { booking: BookingH
                                     {format(new Date(booking.date), 'EEEE d MMMM, yyyy', { locale: es })}
                                 </p>
                                 <p className="text-sm text-foreground/80">
-                                    Hora: {booking.start_time.slice(11, 16)} ({totalDuration} min)
+                                    Hora: {format(booking.start_time, 'HH:mm', { locale: es })} ({totalDuration} min)
                                 </p>
                             </div>
                         </div>

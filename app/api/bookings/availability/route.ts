@@ -105,11 +105,19 @@ export async function GET (request: Request) {
                     const staffBookings = bookings?.filter(b => b.staff_id === schedule.staff_id) || []
 
                     const hasConflict = staffBookings.some(booking => {
-                        const bookingStart = new Date(booking.start_time)
-                        const bookingEnd = new Date(booking.end_time)
 
-                        const bookingStartMins = bookingStart.getUTCHours() * 60 + bookingStart.getUTCMinutes()
-                        const bookingEndMins = bookingEnd.getUTCHours() * 60 + bookingEnd.getUTCMinutes()
+                        const formatter = new Intl.DateTimeFormat('es-ES', {
+                            timeZone: 'Europe/Madrid',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                        })
+
+                        const startLocalTime = formatter.format(new Date(booking.start_time))
+                        const endLocalTime = formatter.format(new Date(booking.end_time))
+
+                        const bookingStartMins = timeToMins(startLocalTime)
+                        const bookingEndMins = timeToMins(endLocalTime)
 
                         return (slotStartMins < bookingEndMins && slotEndMins > bookingStartMins) 
                     })

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { ServiceDB } from '../../../../lib/types/databaseTypes';
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { fromZonedTime } from "date-fns-tz"
 
 // Helper para convertir hora a minutos
 const timeToMins = (time: string) => {
@@ -87,15 +88,18 @@ export async function POST (request: Request) {
         }
 
         // 5. CÁLCULO DE FECHAS
-        const [ year, month, day ] = bookingDate.split('-').map(Number)
-        const [ hours, minutes ] = bookingTime.split(':').map(Number)
+        const dateTimeString = `${bookingDate} ${bookingTime}`
 
-        // Crear fechas en UTC
-        const startTime = new Date(Date.UTC(year, month - 1, day, hours, minutes, 0))
+        const timeZone = 'Europe/Madrid'
+
+        const startTime = fromZonedTime(dateTimeString, timeZone)
+
         const endTime = new Date(startTime.getTime() + safeTotalDuration * 60000)
 
         // 6. ASIGNACIÓN INTELIGENTE DE STAFF ('any')
         let assignedStaffId = staffId
+
+        const [ hours, minutes ] = bookingTime.split(':').map(Number)
         const startMins = hours * 60 + minutes
         const endMins = startMins + safeTotalDuration
 
@@ -143,10 +147,19 @@ export async function POST (request: Request) {
                 const myBookings = existingBookings?.filter(b => b.staff_id === candidate.staff_id) || []
                 
                 const hasConflict = myBookings.some(booking => {
-                    const bStart = new Date(booking.start_time)
-                    const bEnd = new Date(booking.end_time)
-                    const bStartMins = bStart.getUTCHours() * 60 + bStart.getUTCMinutes()
-                    const bEndMins = bEnd.getUTCHours() * 60 + bEnd.getUTCMinutes()
+
+                    const formatter = Intl.DateTimeFormat('es-ES', {
+                        timeZone: 'Europe/Madrid',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    })
+
+                    const startLocalTime = formatter.format(new Date(booking.start_time))
+                    const endLocalTime = formatter.format(new Date(booking.end_time))
+    
+                    const bStartMins = timeToMins(startLocalTime)
+                    const bEndMins = timeToMins(endLocalTime)
                     return (startMins < bEndMins && endMins > bStartMins)
                 })
 
