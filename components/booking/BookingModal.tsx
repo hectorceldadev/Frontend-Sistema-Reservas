@@ -76,21 +76,9 @@ export default function BookingModal({ services }: BookingModalTypes) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const TOTAL_STEPS = 5
 
-  const initialService = preSelectedServiceId 
-    ? services.find(s => s.id === preSelectedServiceId)
-    : null
-
+  // ✅ CORRECCIÓN: Inicialización simple sin preselección
   const [booking, setBooking] = useState<Booking>({
-    services: initialService 
-      ? [{
-        title: initialService.title,
-        price: initialService.price,
-        duration: initialService.duration,
-        short_desc: initialService.short_desc,
-        id: initialService.id,
-      }]
-      : 
-      [],
+    services: [],
     staff: null,
     date: undefined,
     time: null,
@@ -98,9 +86,7 @@ export default function BookingModal({ services }: BookingModalTypes) {
     paymentMethod: 'venue',
   });
 
-  // --- LÓGICA DE ANIMACIÓN DE SALIDA (NUEVA) ---
-  // isClosing: Indica que el usuario ha pedido cerrar, pero estamos animando la salida.
-  // isVisible: Controla si el modal está renderizado en el DOM.
+  // --- LÓGICA DE ANIMACIÓN DE SALIDA ---
   const [isClosing, setIsClosing] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -109,9 +95,7 @@ export default function BookingModal({ services }: BookingModalTypes) {
       setIsVisible(true);
       setIsClosing(false);
     } else {
-      // Si isOpen pasa a false, iniciamos la animación de cierre
       setIsClosing(true);
-      // Esperamos 300ms (duración de la animación CSS) antes de desmontar
       const timer = setTimeout(() => {
         setIsVisible(false);
         setIsClosing(false);
@@ -120,11 +104,10 @@ export default function BookingModal({ services }: BookingModalTypes) {
     }
   }, [isOpen]);
 
-  // --- MANEJO DE CIERRE (Updated) ---
+  // --- MANEJO DE CIERRE ---
   const handleClose = () => {
-    closeModal(); // Dispara el useEffect de arriba (isOpen -> false)
+    closeModal();
     
-    // Reseteo de estados después de la animación
     setTimeout(() => {
         setStep(1);
         setBooking(prev => ({
@@ -136,28 +119,36 @@ export default function BookingModal({ services }: BookingModalTypes) {
             paymentMethod: 'venue',
         }));
         setConfirmedCustomerId(null);
-    }, 300); // Sincronizado con la duración de la animación
+    }, 300);
   };
 
-  // --- LOGICA DE NEGOCIO (Sin cambios estructurales) ---
-
-  // Pre-selección de servicio
+  // ✅ CORRECCIÓN: useEffect optimizado para preselección
+  // Solo se ejecuta cuando el modal se abre Y hay un ID preseleccionado
   useEffect(() => {
+    if (!isOpen || !preSelectedServiceId) return;
     
-    if (isOpen && preSelectedServiceId) {
-      const s = services.find(serv => serv.id === preSelectedServiceId)
-      if (s) {
-        setBooking(prev => {
-          if (prev.services.some(service => service.id === s.id)) return prev
-          return {
-            ...prev,
-            services: [s as ServiceDB]
-          }
-        })
-      }
+    // Buscar el servicio solo UNA VEZ cuando se abre el modal
+    const selectedService = services.find(s => s.id === preSelectedServiceId);
+    
+    if (selectedService) {
+      setBooking(prev => {
+        // Evitar agregar duplicados
+        const alreadyExists = prev.services.some(s => s.id === selectedService.id);
+        if (alreadyExists) return prev;
+        
+        return {
+          ...prev,
+          services: [{
+            id: selectedService.id,
+            title: selectedService.title,
+            price: selectedService.price,
+            duration: selectedService.duration,
+            short_desc: selectedService.short_desc,
+          }]
+        };
+      });
     }
-    
-  }, [isOpen, preSelectedServiceId, services])
+  }, [isOpen, preSelectedServiceId]); // ✅ Eliminamos 'services' de las dependencias
 
   // Carga localStorage
   useEffect(() => {
@@ -169,18 +160,18 @@ export default function BookingModal({ services }: BookingModalTypes) {
           setBooking(prev => ({
             ...prev, 
             client: {
-              ...prev.client!,
               name: name || '',
               email: email || '',
               phone: phone || '',
               comment: ''
             }
           }))
-        } catch (err) { console.error(err) }
+        } catch (err) { 
+          console.error('Error parsing localStorage:', err) 
+        }
       }
     }
   }, [])
-
   // Guardar localStorage
   useEffect(() => {
     if (booking.client) {
