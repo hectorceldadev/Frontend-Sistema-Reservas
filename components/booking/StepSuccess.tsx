@@ -91,7 +91,6 @@ export default function StepSuccess({ booking, onClose, customerId }: StepSucces
         <PushNotificationManager 
             customerId={customerId} 
             email={booking.client?.email || ''} 
-            booking={booking}
         />
 
         {/* Botón Finalizar */}

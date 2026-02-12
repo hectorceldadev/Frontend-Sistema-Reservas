@@ -11,7 +11,6 @@ import { SITE_CONFIG } from '@/config';
 interface PushManagerProps {
   customerId: string;
   email: string;
-  booking?: Booking;
   asModal?: boolean
 }
 
@@ -96,6 +95,7 @@ export default function PushNotificationManager({ customerId, email, asModal = f
         toast.error('Has bloqueado las notificaciones. Revísalo en ajustes.');
       } else {
         toast.error('Error al activar notificaciones.');
+        console.log(error)
       }
     } finally {
       setLoading(false);
@@ -125,7 +125,7 @@ export default function PushNotificationManager({ customerId, email, asModal = f
                 <div className="bg-background p-2 rounded-lg shadow-sm border border-foreground/5 text-primary">
                   <Share size={18} />
                 </div>
-                <span>1. Toca en <b>Compartir</b> abajo.</span>
+                <span>1. Toca en el icono de <b>Compartir.</b></span>
               </div>
               <div className="flex items-center gap-3 text-sm text-foreground font-medium">
                 <div className="bg-background p-2 rounded-lg shadow-sm border border-foreground/5 text-primary">
@@ -137,7 +137,7 @@ export default function PushNotificationManager({ customerId, email, asModal = f
                 <div className="bg-background p-2 rounded-lg shadow-sm border border-foreground/5 text-primary">
                   <BellRing size={18} />
                 </div>
-                <span>3. Abre la App y pulsa <b>Activar</b>.</span>
+                <span>3. Abre la App, ve a reserva, introduce tu email en el buscador y pulsa <b>Activar Recordatorios</b>.</span>
               </div>
             </div>
 

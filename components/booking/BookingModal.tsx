@@ -267,6 +267,10 @@ export default function BookingModal({ services }: BookingModalTypes) {
       const data = await response.json()
       if (!response.ok) throw new Error(data.error  || 'Error al procesar la reserva')
       setConfirmedCustomerId(data.customerId)
+
+      if (data.success) {
+        localStorage.setItem('customerId', data.customerId)
+      }
       if (booking.paymentMethod === 'card') {
         toast.info('Redirigiendo a Stripe...')
       } else {

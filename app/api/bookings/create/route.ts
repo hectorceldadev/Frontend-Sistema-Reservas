@@ -4,6 +4,7 @@ import { ServiceDB } from '../../../../lib/types/databaseTypes';
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { fromZonedTime } from "date-fns-tz"
+import { email } from "zod";
 
 // Helper para convertir hora a minutos
 const timeToMins = (time: string) => {
