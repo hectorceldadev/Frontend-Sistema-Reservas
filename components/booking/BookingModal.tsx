@@ -71,7 +71,7 @@ export default function BookingModal({ services }: BookingModalTypes) {
   const [ staff, setStaff ] = useState<Profile[] | []>([])
   const [ confirmedCustomerId, setConfirmedCustomerId ] = useState<string | null>(null)
 
-  const { isOpen, openModal, closeModal, preSelectedServiceId } = useBooking()
+  const { isOpen, openModal, closeModal } = useBooking()
   const businessId = SITE_CONFIG.supabaseData.businessId
   const scrollRef = useRef<HTMLDivElement>(null)
   const TOTAL_STEPS = 5
@@ -128,23 +128,6 @@ export default function BookingModal({ services }: BookingModalTypes) {
 
   // --- LOGICA DE NEGOCIO (Sin cambios estructurales) ---
 
-  // Pre-selección de servicio
-  useEffect(() => {
-    
-    if (isOpen && preSelectedServiceId) {
-      const s = services.find(serv => serv.id === preSelectedServiceId)
-      if (s) {
-        setBooking(prev => {
-          if (prev.services.some(service => service.id === s.id)) return prev
-          return {
-            ...prev,
-            services: [s as ServiceDB]
-          }
-        })
-      }
-    }
-    
-  }, [isOpen, preSelectedServiceId, services])
 
   // Carga localStorage
   useEffect(() => {
