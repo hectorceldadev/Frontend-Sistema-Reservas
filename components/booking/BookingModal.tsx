@@ -140,24 +140,24 @@ export default function BookingModal({ services }: BookingModalTypes) {
   };
 
   // --- LOGICA DE NEGOCIO (Sin cambios estructurales) ---
-
+//*
   // Pre-selección de servicio
-  useEffect(() => {
+  // useEffect(() => {
     
-    if (isOpen && preSelectedServiceId) {
-      const s = services.find(serv => serv.id === preSelectedServiceId)
-      if (s) {
-        setBooking(prev => {
-          if (prev.services.some(service => service.id === s.id)) return prev
-          return {
-            ...prev,
-            services: [s as ServiceDB]
-          }
-        })
-      }
-    }
+  //   if (isOpen && preSelectedServiceId) {
+  //     const s = services.find(serv => serv.id === preSelectedServiceId)
+  //     if (s) {
+  //       setBooking(prev => {
+  //         if (prev.services.some(service => service.id === s.id)) return prev
+  //         return {
+  //           ...prev,
+  //           services: [s as ServiceDB]
+  //         }
+  //       })
+  //     }
+  //   }
     
-  }, [isOpen, preSelectedServiceId, services])
+  // }, [isOpen, preSelectedServiceId, services])
 
   // Carga localStorage
   useEffect(() => {
@@ -220,11 +220,11 @@ export default function BookingModal({ services }: BookingModalTypes) {
   }, [isOpen, businessId])
 
   // Bloqueo Scroll
-  useEffect(() => {
-    if (isOpen) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = 'unset';
-    return () => { document.body.style.overflow = 'unset'; };
-  }, [isOpen]);
+  // useEffect(() => {
+  //   if (isOpen) document.body.style.overflow = 'hidden';
+  //   else document.body.style.overflow = 'unset';
+  //   return () => { document.body.style.overflow = 'unset'; };
+  // }, [isOpen]);
 
   // Reset Scroll
   useEffect(() => {
