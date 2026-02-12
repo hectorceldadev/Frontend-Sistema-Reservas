@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Search, Calendar, Clock, MapPin, History, ArrowRight, User, ChevronLeft, Loader2, X, AlertTriangle, CheckCircle2, Scissors, LocateIcon } from 'lucide-react';
+import { Search, Calendar, Clock, MapPin, History, ArrowRight, User, ChevronLeft, Loader2, X, AlertTriangle, CheckCircle2, Scissors, LocateIcon, CalendarDays } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import Link from 'next/link';
@@ -240,9 +240,14 @@ export default function MyBookingsPage() {
                             </div>
 
                             {upcomingBookings.length === 0 ? (
-                                <div className="text-center h-60 flex justify-center items-center flex-col bg-background-secondary rounded-2xl border border-dashed border-foreground/20">
-                                    <p className="text-muted text-sm">No tienes citas próximas.</p>
-                                    <button onClick={() => openModal()} className="mt-2 text-xs font-bold text-primary underline cursor-pointer">Reservar ahora</button>
+                                <div className="text-center h-60 gap-8 flex justify-center items-center flex-col bg-background-secondary rounded-2xl border border-dashed border-foreground/20">
+                                    <div className='bg-primary p-4 rounded-full'>
+                                        <CalendarDays className='size-8 text-background' />
+                                    </div>
+                                    <div>
+                                        <p className="text-muted text-sm">No tienes citas próximas.</p>
+                                        <button onClick={() => openModal()} className="mt-2 text-xs font-bold text-primary underline cursor-pointer">Reservar ahora</button>
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="space-y-4">

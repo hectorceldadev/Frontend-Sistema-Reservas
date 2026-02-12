@@ -76,8 +76,27 @@ export default function BookingModal({ services }: BookingModalTypes) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const TOTAL_STEPS = 5
 
+  const initialService = preSelectedServiceId 
+    ? services.find(s => s.id === preSelectedServiceId)
+    : null
+
   const [booking, setBooking] = useState<Booking>({
-    services: [],
+    services: initialService 
+      ? [{
+        title: initialService.title,
+        price: initialService.price,
+        duration: initialService.duration,
+        features: initialService.features,
+        short_desc: initialService.short_desc,
+        full_desc: initialService.full_desc,
+        id: initialService.id,
+        icon: initialService.icon,
+        slug: initialService.slug,
+        metadata: initialService.metadata,
+        image_url: initialService.image_url,
+      }]
+      : 
+      [],
     staff: null,
     date: undefined,
     time: null,
@@ -130,26 +149,21 @@ export default function BookingModal({ services }: BookingModalTypes) {
 
   // Pre-selección de servicio
   useEffect(() => {
-    if (isOpen && preSelectedServiceId && booking.services.length === 0) {
-      const serviceFound = services.find(s => s.id === preSelectedServiceId)
-      if (serviceFound) {
-        const serviceToAdd: ServiceDB = {
-          id: serviceFound.id,
-          title: serviceFound.title,
-          price: serviceFound.price,
-          duration: serviceFound.duration,
-          short_desc: serviceFound.short_desc,
-          features: serviceFound.features,
-          full_desc: serviceFound.full_desc,
-          icon: serviceFound.icon,
-          image_url: serviceFound.image_url,
-          metadata: serviceFound.metadata,
-          slug: serviceFound.slug
-        }
-        setBooking(prev => ({ ...prev, services: [serviceToAdd] }))
+    
+    if (isOpen && preSelectedServiceId) {
+      const s = services.find(serv => serv.id === preSelectedServiceId)
+      if (s) {
+        setBooking(prev => {
+          if (prev.services.some(service => service.id === s.id)) return prev
+          return {
+            ...prev,
+            services: [s as ServiceDB]
+          }
+        })
       }
     }
-  }, [isOpen, preSelectedServiceId, availableServices, booking.services.length, services])
+    
+  }, [isOpen, preSelectedServiceId, services])
 
   // Carga localStorage
   useEffect(() => {
