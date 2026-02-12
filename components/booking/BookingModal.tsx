@@ -18,6 +18,8 @@ import { useBooking } from '@/context/BookingContext';
 import { SITE_CONFIG } from '@/config';
 import { clientFormSchema } from '@/lib/schemas';
 
+import { RemoveScroll } from 'react-remove-scroll'
+
 // --- INTERFACES (Sin cambios) ---
 export interface Booking {
   services: Service[];
@@ -220,11 +222,11 @@ export default function BookingModal({ services }: BookingModalTypes) {
   }, [isOpen, businessId])
 
   // Bloqueo Scroll
-  useEffect(() => {
-    if (isOpen) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = 'unset';
-    return () => { document.body.style.overflow = 'unset'; };
-  }, [isOpen]);
+  // useEffect(() => {
+  //   if (isOpen) document.body.style.overflow = 'hidden';
+  //   else document.body.style.overflow = 'unset';
+  //   return () => { document.body.style.overflow = 'unset'; };
+  // }, [isOpen]);
 
   // Reset Scroll
   useEffect(() => {
@@ -307,108 +309,110 @@ export default function BookingModal({ services }: BookingModalTypes) {
   );
 
   return (
-    <div className="fixed inset-0 z-9999 flex items-center justify-center px-4 sm:px-6 stagger-container">
+    <RemoveScroll enabled={isOpen || isVisible} allowPinchZoom={true}>
+      <div className="fixed inset-0 z-9999 flex items-center justify-center px-4 sm:px-6 stagger-container">
 
-      {/* BACKDROP OSCURO */}
-      <div
-        onClick={handleClose}
-        className={cn(
-            "absolute inset-0 bg-black/60 backdrop-blur-md touch-none transition-opacity duration-300 ease-out",
-            // Solo aplicamos opacidad 0 al cerrar. Al abrir, dejamos que entre normal (sin animate-in explícito si ya lo hace el padre, o lo añadimos si queremos fade-in suave)
-            isClosing ? "opacity-0" : "animate-in fade-in"
-        )}
-      />
-
-      {/* CONTENEDOR PRINCIPAL */}
-      <div 
-        className={cn(
-            "relative bg-background w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90dvh] h-auto border border-white/10 transition-all duration-300 ease-out",
-            // ANIMACIÓN DE SALIDA: Escala baja un poco y se va hacia abajo con fade out
-            isClosing 
-                && "opacity-0 scale-10 translate-y-140 duration-500" 
-                
-        )}
-      >
-
-        {/* HEADER */}
-        {step < 6 && (
-          <div className="p-4 border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-10 flex justify-between items-center shrink-0">
-            <div className="flex items-center gap-3">
-              {step > 1 && (
-                <button onClick={prevStep} className="p-2 -ml-2 rounded-full hover:bg-foreground/5 text-foreground transition-colors">
-                  <ChevronLeft size={22} />
-                </button>
-              )}
-              <div className="flex flex-col">
-                <h3 className='text-lg text-foreground font-bold font-title leading-tight'>Reserva tu cita</h3>
-                <div className="flex items-center gap-2">
-                  <div className="h-1 w-16 bg-foreground/10 rounded-full overflow-hidden mt-0.5">
-                    <div className="h-full bg-primary transition-all duration-500" style={{ width: `${(step / TOTAL_STEPS) * 100}%` }} />
-                  </div>
-                  <span className="text-[10px] text-muted font-medium">Paso {step}/{TOTAL_STEPS}</span>
-                </div>
-              </div>
-            </div>
-            <button onClick={handleClose} className='p-2 rounded-full hover:bg-foreground/5 text-muted hover:text-foreground transition-colors'>
-              <X size={22} />
-            </button>
-          </div>
-        )}
-
-        {/* BODY CON SCROLL */}
+        {/* BACKDROP OSCURO */}
         <div
-          ref={scrollRef}
-          className="overflow-y-auto flex-1 scrollbar-hide relative overscroll-contain"
+          onClick={handleClose}
+          className={cn(
+              "absolute inset-0 bg-black/60 backdrop-blur-md touch-none transition-opacity duration-300 ease-out",
+              // Solo aplicamos opacidad 0 al cerrar. Al abrir, dejamos que entre normal (sin animate-in explícito si ya lo hace el padre, o lo añadimos si queremos fade-in suave)
+              isClosing ? "opacity-0" : "animate-in fade-in"
+          )}
+        />
+
+        {/* CONTENEDOR PRINCIPAL */}
+        <div 
+          className={cn(
+              "relative bg-background w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90dvh] h-auto border border-white/10 transition-all duration-300 ease-out",
+              // ANIMACIÓN DE SALIDA: Escala baja un poco y se va hacia abajo con fade out
+              isClosing 
+                  && "opacity-0 scale-10 translate-y-140 duration-500" 
+                  
+          )}
         >
-          <div className={step === 6 ? "h-full" : "p-6"}>
-            {step === 1 && <StepService booking={booking} setBooking={setBooking} servicesList={availableServices} isLoading={isLoading} />}
-            {step === 2 && <StepStaff booking={booking} setBooking={setBooking} staffList={staff} isLoading={isLoading} />}
-            {step === 3 && <StepDate booking={booking} setBooking={setBooking} />}
-            {step === 4 && <StepForm booking={booking} setBooking={setBooking} />}
-            {step === 5 && <StepPayment booking={booking} setBooking={setBooking} />}
-            {step === 6 && <StepSuccess booking={booking} onClose={handleClose} customerId={confirmedCustomerId ? confirmedCustomerId : ''} />}
-          </div>
-        </div>
 
-        {/* FOOTER */}
-        {step < 6 && (
-          <div className="p-4 border-t border-border bg-background/90 backdrop-blur-md sticky bottom-0 z-10 shrink-0">
-            <div className="flex items-center justify-between gap-4">
-
-              <div className="flex flex-col">
-                <span className="text-[10px] uppercase tracking-wider text-muted font-bold">Total estimado</span>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-bold font-title text-foreground animate-in slide-in-from-bottom-2">
-                    {totalPrice}€
-                  </span>
+          {/* HEADER */}
+          {step < 6 && (
+            <div className="p-4 border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-10 flex justify-between items-center shrink-0">
+              <div className="flex items-center gap-3">
+                {step > 1 && (
+                  <button onClick={prevStep} className="p-2 -ml-2 rounded-full hover:bg-foreground/5 text-foreground transition-colors">
+                    <ChevronLeft size={22} />
+                  </button>
+                )}
+                <div className="flex flex-col">
+                  <h3 className='text-lg text-foreground font-bold font-title leading-tight'>Reserva tu cita</h3>
+                  <div className="flex items-center gap-2">
+                    <div className="h-1 w-16 bg-foreground/10 rounded-full overflow-hidden mt-0.5">
+                      <div className="h-full bg-primary transition-all duration-500" style={{ width: `${(step / TOTAL_STEPS) * 100}%` }} />
+                    </div>
+                    <span className="text-[10px] text-muted font-medium">Paso {step}/{TOTAL_STEPS}</span>
+                  </div>
                 </div>
               </div>
-
-              <button
-                onClick={step === TOTAL_STEPS ? handleConfirm : nextStep}
-                disabled={!canContinue() || isLoading}
-                className={cn(
-                  "flex-1 max-w-50 py-3.5 px-6 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all duration-300",
-                  canContinue() && !isLoading
-                    ? "bg-foreground text-background shadow-lg hover:scale-[1.02] active:scale-95"
-                    : "bg-muted/20 text-muted cursor-not-allowed opacity-50"
-                )}
-              >
-                {isLoading ? (
-                  <Loader2 size={24} className="animate-spin" />
-                ) : (
-                  step === TOTAL_STEPS ? (
-                    <>Confirmar <CheckCircle size={18} /></>
-                  ) : (
-                    <>Continuar <ArrowRight size={18} /></>
-                  )
-                )}
+              <button onClick={handleClose} className='p-2 rounded-full hover:bg-foreground/5 text-muted hover:text-foreground transition-colors'>
+                <X size={22} />
               </button>
             </div>
-          </div>
-        )}
+          )}
 
+          {/* BODY CON SCROLL */}
+          <div
+            ref={scrollRef}
+            className="overflow-y-auto flex-1 scrollbar-hide relative overscroll-contain"
+          >
+            <div className={step === 6 ? "h-full" : "p-6"}>
+              {step === 1 && <StepService booking={booking} setBooking={setBooking} servicesList={availableServices} isLoading={isLoading} />}
+              {step === 2 && <StepStaff booking={booking} setBooking={setBooking} staffList={staff} isLoading={isLoading} />}
+              {step === 3 && <StepDate booking={booking} setBooking={setBooking} />}
+              {step === 4 && <StepForm booking={booking} setBooking={setBooking} />}
+              {step === 5 && <StepPayment booking={booking} setBooking={setBooking} />}
+              {step === 6 && <StepSuccess booking={booking} onClose={handleClose} customerId={confirmedCustomerId ? confirmedCustomerId : ''} />}
+            </div>
+          </div>
+
+          {/* FOOTER */}
+          {step < 6 && (
+            <div className="p-4 border-t border-border bg-background/90 backdrop-blur-md sticky bottom-0 z-10 shrink-0">
+              <div className="flex items-center justify-between gap-4">
+
+                <div className="flex flex-col">
+                  <span className="text-[10px] uppercase tracking-wider text-muted font-bold">Total estimado</span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-bold font-title text-foreground animate-in slide-in-from-bottom-2">
+                      {totalPrice}€
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={step === TOTAL_STEPS ? handleConfirm : nextStep}
+                  disabled={!canContinue() || isLoading}
+                  className={cn(
+                    "flex-1 max-w-50 py-3.5 px-6 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all duration-300",
+                    canContinue() && !isLoading
+                      ? "bg-foreground text-background shadow-lg hover:scale-[1.02] active:scale-95"
+                      : "bg-muted/20 text-muted cursor-not-allowed opacity-50"
+                  )}
+                >
+                  {isLoading ? (
+                    <Loader2 size={24} className="animate-spin" />
+                  ) : (
+                    step === TOTAL_STEPS ? (
+                      <>Confirmar <CheckCircle size={18} /></>
+                    ) : (
+                      <>Continuar <ArrowRight size={18} /></>
+                    )
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+        </div>
       </div>
-    </div>
+    </RemoveScroll>
   );
 }
