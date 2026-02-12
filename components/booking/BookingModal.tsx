@@ -86,14 +86,8 @@ export default function BookingModal({ services }: BookingModalTypes) {
         title: initialService.title,
         price: initialService.price,
         duration: initialService.duration,
-        features: initialService.features,
         short_desc: initialService.short_desc,
-        full_desc: initialService.full_desc,
-        id: initialService.id,
-        icon: initialService.icon,
-        slug: initialService.slug,
-        metadata: initialService.metadata,
-        image_url: initialService.image_url,
+        id: initialService.id
       }]
       : 
       [],
