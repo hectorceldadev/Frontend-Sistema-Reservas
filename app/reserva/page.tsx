@@ -72,13 +72,33 @@ export default function MyBookingsPage() {
                     if (parsed.email) {
                         setEmail(parsed.email);
                         executeSearch(parsed.email);
-                        const customerIdLS = localStorage.getItem('customerId')
-                        setCustomerId(customerIdLS)
+                        const cachedCustomerId = localStorage.getItem('customerId')
+                        
+                        if (cachedCustomerId) {
+                            setCustomerId(cachedCustomerId)
+                        } else {
+                            fetchCustomerId(email)
+                        }
                     }
                 } catch (e) { console.error(e); }
             }
         }
-    }, [executeSearch]);
+    }, [executeSearch, email]);
+
+    const fetchCustomerId = async (emailToSearch: string) => {
+        try {
+            // CORRECCIÓN DE RUTA AQUÍ:
+            const response = await fetch(`/api/customers?email=${emailToSearch}`)
+            const data = await response.json()
+            
+            if (response.ok && data.success) {
+                setCustomerId(data.customerId) // Ojo: en tu API devuelves 'customerId', no 'id'
+                localStorage.setItem('customerId', data.customerId) // Guardamos para la próxima
+            }
+        } catch (error) {
+            console.error('Error fetching customerId:', error)
+        }
+    }
 
     const handleManualSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -94,6 +114,7 @@ export default function MyBookingsPage() {
 
         // Si pasa la validación, buscamos
         executeSearch(email);
+        fetchCustomerId(email)
         toast.success('Buscando citas...');
     };
 

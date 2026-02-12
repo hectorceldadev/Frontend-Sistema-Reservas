@@ -517,7 +517,7 @@ export const SITE_CONFIG: SiteConfig = {
         teamDesc: 'Conoce a los artistas detrás de las navajas. Especialistas en cortes modernos y comprometidos con brindarte el mejor servicio posible.',
     },
     email: {
-        logoUrl: 'https://wvsvothaayzozwweqotd.supabase.co/storage/v1/object/public/businesses_media/b0880124-97ad-4560-8542-fbc31ff46a8f/hero-1.webp', //* URL LOGO SUPABASE O ICON.PNG O OPENGRAPH
+        logoUrl: 'https://wvsvothaayzozwweqotd.supabase.co/storage/v1/object/public/businesses_media/b0880124-97ad-4560-8542-fbc31ff46a8f/logo.png', //* URL LOGO SUPABASE O ICON.PNG O OPENGRAPH
         businessName: 'Celda Barber', //* NOMBRE DEL NEGOCIO
         businessAddress: 'Calle Falsa 123, Chiva', //* DIRECCIÓN DEL NEGOCIO
         businessMap: 'https://maps.app.goo.gl/kWwce1bHwBw7QzcJA'
