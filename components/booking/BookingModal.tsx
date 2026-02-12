@@ -336,7 +336,7 @@ export default function BookingModal({ services }: BookingModalTypes) {
             {step === 3 && <StepDate booking={booking} setBooking={setBooking} />}
             {step === 4 && <StepForm booking={booking} setBooking={setBooking} />}
             {step === 5 && <StepPayment booking={booking} setBooking={setBooking} />}
-            {step === 6 && <StepSuccess booking={booking} onClose={handleClose} customerId={confirmedCustomerId ? confirmedCustomerId : ''} />}
+            {step === 6 && <StepSuccess booking={booking} onClose={handleClose} />}
           </div>
         </div>
 

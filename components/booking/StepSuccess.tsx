@@ -4,17 +4,15 @@ import { Check, ArrowRight } from 'lucide-react'; // Quitamos imports no usados
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Booking } from './BookingModal';
-import PushNotificationManager from '../push/PushNotificationManager';
 import { generateGoogleCalendarUrl, downloadIcsFile } from '@/lib/calendar';
 import Link from 'next/link';
 
 interface StepSuccessProps {
   booking: Booking;
   onClose: () => void;
-  customerId: string;
 }
 
-export default function StepSuccess({ booking, onClose, customerId }: StepSuccessProps) {
+export default function StepSuccess({ booking, onClose }: StepSuccessProps) {
 
   return (
     <div className="flex flex-col h-full overflow-hidden stagger-container">
@@ -86,12 +84,6 @@ export default function StepSuccess({ booking, onClose, customerId }: StepSucces
                  Apple Calendar
             </button>
         </div>
-
-        {/* Push Manager */}
-        <PushNotificationManager 
-            customerId={customerId} 
-            email={booking.client?.email || ''} 
-        />
 
         {/* Botón Finalizar */}
         <Link
