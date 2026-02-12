@@ -1,14 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowUpRight, CalendarDays, Check, LucideIcon, Scissors } from 'lucide-react'
+import { ArrowUpRight, Check, LucideIcon, Scissors } from 'lucide-react'
 import { SITE_CONFIG } from '@/config'
-import { useGSAP } from '@gsap/react'
-import { useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { ServiceDB } from '@/lib/types/databaseTypes'
-import { useBooking } from '@/context/BookingContext'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -25,8 +22,6 @@ const iconsMap: Record<string, LucideIcon> = {
 export const Servicio = ({ service, relatedServices }: ServivioTypes) => {
 
     const { servicioEspecifico } = SITE_CONFIG
-
-    const { openModal } = useBooking()
 
     // CAMBIO 2: Eliminamos la función viewMore() y usamos la prop directa
     const listaServicios = relatedServices;
@@ -65,16 +60,6 @@ export const Servicio = ({ service, relatedServices }: ServivioTypes) => {
                         <p className="text-lg text-muted leading-relaxed max-w-lg">
                             {service.short_desc}
                         </p>
-
-                        <div className="flex flex-col sm:flex-row gap-4 mt-4">
-                            <button
-                                onClick={() => openModal(service.id)}
-                                className="flex-1 bg-primary hover:bg-primary/80 text-foreground px-8 py-4 rounded-xl font-bold uppercase tracking-wider flex items-center justify-center gap-3 transition-all active:scale-95"
-                            >
-                                <CalendarDays className="w-5 h-5" />
-                                Reservar Cita
-                            </button>
-                        </div>
                     </div>
 
                     <div className="bg-background-secondary backdrop-blur-md border border-foreground/10 rounded-3xl p-8 lg:mt-10 md:p-10 relative overflow-hidden stagger-container">
