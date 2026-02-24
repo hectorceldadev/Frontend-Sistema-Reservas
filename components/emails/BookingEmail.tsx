@@ -78,7 +78,7 @@ export const BookingEmail = ({
                 
                 {/* CABECERA */}
                 <Section className="text-center mb-6">
-                    <Img src={logoUrl} width="100" height="100" alt="Logo" className="mx-auto mb-4 rounded-md border border-white/20" />
+                    <Img src={logoUrl} width="100" height="100" alt="Logo" className="mx-auto mb-4 rounded-xl border border-white/20" />
                     <Heading className="text-brand text-[20px] font-bold text-center uppercase tracking-wider m-0">
                         {businessName}
                     </Heading>

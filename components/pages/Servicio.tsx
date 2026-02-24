@@ -58,7 +58,7 @@ export const Servicio = ({ service, relatedServices }: ServivioTypes) => {
                         </div>
 
                         <p className="text-lg text-muted leading-relaxed max-w-lg">
-                            {service.short_desc}
+                            {service.full_desc !== '' ? service.full_desc : service.short_desc}
                         </p>
                     </div>
 

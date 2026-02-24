@@ -48,7 +48,7 @@ export async function POST (request: Request) {
         )
 
         const { data, error } = await resend.emails.send({
-            from: 'Celda Barber <onboarding@resend.dev>',
+            from: 'Celda Barber <onboarding@resend.dev>', //* CAMBIAR CORREO
             to: [email],
             subject: `Confirmación de cita en ${SITE_CONFIG.email.businessName} ✂️`,
             html: emailHTML

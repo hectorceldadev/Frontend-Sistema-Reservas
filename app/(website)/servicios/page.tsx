@@ -3,6 +3,8 @@ import { SITE_CONFIG } from "@/config"
 import { getServices } from "@/lib/data"
 import { Metadata } from "next"
 
+export const dynamic = 'force-dynamic';
+
 const { servicios } = SITE_CONFIG
 
 export const metadata: Metadata = {

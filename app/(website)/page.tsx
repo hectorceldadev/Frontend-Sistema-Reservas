@@ -5,6 +5,8 @@ import { Reviews } from "@/components/Reviews"
 import Servicios from "@/components/Servicios"
 import { getBusiness, getServices } from "@/lib/data"
 
+export const dynamic = 'force-dynamic';
+
 const page = async () => {
 
   const [services, business] = await Promise.all([
