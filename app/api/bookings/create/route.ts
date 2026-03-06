@@ -103,7 +103,7 @@ export async function POST (request: Request) {
         const endMins = startMins + safeTotalDuration
 
         if (assignedStaffId === 'any') {
-            const dayOfWeek = startTime.getUTCDay()
+            const dayOfWeek = startTimeUtc.getUTCDay()
 
             const { data: candidates } = await supabaseAdmin
                 .from('staff_schedules')
