@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { getDay, isSameDay } from "date-fns";
+import { fromZonedTime, toZonedTime } from "date-fns-tz";
 import { NextResponse } from "next/server";
 
 const timeToMins = (time: string) => {
@@ -12,6 +12,8 @@ const minsToTime = (mins: number) => {
     const m = (mins % 60).toString().padStart(2, '0')
     return `${h}:${m}`
 }
+
+const TIMEZONE = 'Europe/Madrid'
 
 export async function GET (request: Request) {
 
@@ -37,8 +39,9 @@ export async function GET (request: Request) {
             return NextResponse.json({ error: 'Faltán parámetros' }, { status: 400 })
         }
 
-        const selectedDate = new Date(dateParam)
-        const dayOfWeek = getDay(selectedDate)
+        const localMidnight = fromZonedTime(`${dateParam}T00:00:00`, TIMEZONE)
+        const dateInMadrid = toZonedTime(localMidnight, TIMEZONE)
+        const dayOfWeek = dateInMadrid.getDay()
 
         let scheduleQuery = supabaseAdmin
             .from('staff_schedules')
@@ -68,14 +71,21 @@ export async function GET (request: Request) {
             .neq('status', 'cancelled')
             .neq('status', 'rejected')
 
-        const now = new Date()
-        const isToday = isSameDay(selectedDate, now)
+        const { data: blockedPeriods } = await supabaseAdmin
+            .from('blocked_periods')
+            .select('start_date, end_date, staff_id')
+            .eq('business_id', businessId)
+            .in('staff_id', workingStaffIds)
+            .eq('status', 'active')
+
+        const nowUtc = new Date()
+        const nowInMadrid = toZonedTime(nowUtc, TIMEZONE)
+
+        const todayString = `${nowInMadrid.getFullYear()}-${String(nowInMadrid.getMonth() + 1).padStart(2, '0')}-${String(nowInMadrid.getDate()).padStart(2, '0')}`
+        const isToday = dateParam === todayString
 
         const bufferMins = 30
-
-        const timeZone = 'Europe/Madrid'
-        const nowInBiz = new Date(now.toLocaleString('en-US', { timeZone }))
-        const currentMinsOfDay = (nowInBiz.getHours() * 60 + nowInBiz.getMinutes()) + bufferMins
+        const currentMinsOfDay = (nowInMadrid.getHours() * 60 + nowInMadrid.getMinutes()) + bufferMins 
 
         const slotsSet = new Set<string>()
         const INTERVAL = 30
@@ -107,28 +117,36 @@ export async function GET (request: Request) {
                 }
 
                 if (isAvailable) {
+                    const slotLocalStartStr = `${dateParam}T${minsToTime(slotStartMins)}:00`
+                    const slotLocalEndStr = `${dateParam}T${minsToTime(slotEndMins)}:00`
+    
+                    const slotUtcStart = fromZonedTime(slotLocalStartStr, TIMEZONE)
+                    const slotUtcEnd = fromZonedTime(slotLocalEndStr, TIMEZONE)
+    
                     const staffBookings = bookings?.filter(b => b.staff_id === schedule.staff_id) || []
-
-                    const hasConflict = staffBookings.some(booking => {
-
-                        const formatter = new Intl.DateTimeFormat('es-ES', {
-                            timeZone: 'Europe/Madrid',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: false
-                        })
-
-                        const startLocalTime = formatter.format(new Date(booking.start_time))
-                        const endLocalTime = formatter.format(new Date(booking.end_time))
-
-                        const bookingStartMins = timeToMins(startLocalTime)
-                        const bookingEndMins = timeToMins(endLocalTime)
-
-                        return (slotStartMins < bookingEndMins && slotEndMins > bookingStartMins) 
+                    const hasBookingConflict = staffBookings.some(booking => {
+                        const bookingStartUtc = new Date(booking.start_time)
+                        const bookingEndUtc = new Date(booking.end_time)
+    
+                        return (slotUtcStart < bookingEndUtc && slotUtcEnd > bookingStartUtc)
                     })
-
-                    if (hasConflict) {
+    
+                    if (hasBookingConflict) {
                         isAvailable = false
+                    }
+    
+                    if (isAvailable) {
+                        const staffBlocks = blockedPeriods?.filter(b => b.staff_id === schedule.staff_id) || []
+                        const hasBlockConflict = staffBlocks.some(block => {
+                            const blockStartUtc = new Date(block.start_date)
+                            const blockEndUtc = new Date(block.end_date)
+    
+                            return (slotUtcStart < blockEndUtc && slotUtcEnd > blockStartUtc)
+                        })
+    
+                        if (hasBlockConflict) {
+                            isAvailable = false
+                        }
                     }
                 }
 

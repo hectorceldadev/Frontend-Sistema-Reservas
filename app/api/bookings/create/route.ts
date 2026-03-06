@@ -89,13 +89,11 @@ export async function POST (request: Request) {
         }
 
         // 5. CÁLCULO DE FECHAS
-        const dateTimeString = `${bookingDate} ${bookingTime}`
-
+        
         const timeZone = 'Europe/Madrid'
-
-        const startTime = fromZonedTime(dateTimeString, timeZone)
-
-        const endTime = new Date(startTime.getTime() + safeTotalDuration * 60000)
+        const dateTimeStringStart = `${bookingDate}T${bookingTime}:00`
+        const startTimeUtc = fromZonedTime(dateTimeStringStart, timeZone)
+        const endTimeUtc = new Date(startTimeUtc.getTime() + safeTotalDuration * 60000)
 
         // 6. ASIGNACIÓN INTELIGENTE DE STAFF ('any')
         let assignedStaffId = staffId
@@ -130,6 +128,13 @@ export async function POST (request: Request) {
                 .neq('status', 'cancelled')
                 .neq('status', 'rejected')
 
+            const { data: existingBlocks } = await supabaseAdmin
+                .from('blocked_periods')
+                .select('start_date, end_date, staff_id')
+                .eq('business_id', businessId)
+                .in('staff_id', staffId)
+                .eq('status', 'active')
+
             // Barajar candidatos
             const shuffledCandidates = candidates.sort(() => 0.5 - Math.random())
 
@@ -146,25 +151,22 @@ export async function POST (request: Request) {
                 }
 
                 const myBookings = existingBookings?.filter(b => b.staff_id === candidate.staff_id) || []
-                
-                const hasConflict = myBookings.some(booking => {
-
-                    const formatter = Intl.DateTimeFormat('es-ES', {
-                        timeZone: 'Europe/Madrid',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false
-                    })
-
-                    const startLocalTime = formatter.format(new Date(booking.start_time))
-                    const endLocalTime = formatter.format(new Date(booking.end_time))
-    
-                    const bStartMins = timeToMins(startLocalTime)
-                    const bEndMins = timeToMins(endLocalTime)
-                    return (startMins < bEndMins && endMins > bStartMins)
+                const hasBookingConflict = myBookings.some(booking => {
+                    const bStart = new Date(booking.start_time)
+                    const bEnd = new Date(booking.end_time)
+                    return (startTimeUtc < bEnd && endTimeUtc > bStart)
                 })
 
-                return !hasConflict
+                if (hasBookingConflict) return false
+
+                const myBlocks = existingBlocks?.filter(b => b.staff_id === candidate.staff_id) || []
+                const hasBlockConflict = myBlocks.some(block => {
+                    const bStart = new Date(block.start_date)
+                    const bEnd = new Date(block.end_date)
+                    return (startTimeUtc < bEnd && endTimeUtc > bStart)
+                })
+
+                return !hasBlockConflict
             })
 
             if (validCandidate) {
@@ -175,13 +177,52 @@ export async function POST (request: Request) {
         }
 
         // 8. INSERTAR RESERVA (Corrección payment_method)
+        const { data: lastSecondBookings } = await supabaseAdmin
+            .from('bookings')
+            .select('start_time, end_time')
+            .eq('business_id', businessId)
+            .eq('staff_id', assignedStaffId)
+            .eq('date', bookingDate)
+            .neq('status', 'cancelled')
+            .neq('starus', 'rejected')
+
+        const isBooked = (lastSecondBookings || []).some(booking => {
+            const bStart = new Date(booking.start_time)
+            const bEnd = new Date(booking.end_time)
+
+            return (startTimeUtc < bEnd && endTimeUtc > bStart)
+    
+        })
+
+        if (isBooked) {
+            return NextResponse.json({ error: 'Lo sentimos, este hueco acaba de ser reservado por otra persona. Por favor, elige otra hora.' }, { status: 409 })
+        }
+
+        const { data: lastSecondBlocks } = await supabaseAdmin
+            .from('blocked_periods')
+            .select('start_date, end_date')
+            .eq('business_id', businessId)
+            .eq('staff_id', assignedStaffId)
+            .eq('status', 'active')
+
+        const isBlocked = (lastSecondBlocks || []).some(block => {
+            const bStart = new Date(block.start_date)
+            const bEnd = new Date(block.end_date)
+
+            return (startTimeUtc < bEnd && endTimeUtc > bStart)
+        })
+
+        if (isBlocked) {
+            return NextResponse.json({ error: 'Lo sentimos, este profesional acaba de marcar este periodo como no disponible.' }, { status: 409 })
+        }
+
         const bookingData = {
                 business_id: businessId,
                 customer_id: customerId,
                 staff_id: assignedStaffId,
                 date: bookingDate,
-                start_time: startTime.toISOString(),
-                end_time: endTime.toISOString(),
+                start_time: startTimeUtc.toISOString(),
+                end_time: endTimeUtc.toISOString(),
                 status: paymentMethod === 'card' ? 'pending_payment' : 'confirmed', // snake_case
                 total_price: safeTotalPrice,
                 payment_method: paymentMethod, // snake_case en DB
@@ -216,7 +257,7 @@ export async function POST (request: Request) {
         if (paymentMethod !== 'card') {
             const serviceNames = dbServices.map(s => s.title)
             const staffName = newBooking.staff?.full_name || 'El equipo'
-            const formattedDate = format(startTime, "EEEE d 'de' MMMM", { locale: es })
+            const formattedDate = format(startTimeUtc, "EEEE d 'de' MMMM", { locale: es })
             const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
             // Lanzamos fetch sin await
