@@ -59,7 +59,7 @@ export default function StepPayment({ booking }: StepPaymentProps) {
                 <span>Servicios</span>
             </div>
             {booking.services.map((s) => (
-                <div key={s.id} className="flex justify-between items-center text-sm">
+                <div key={s.id} className="flex font-semibold justify-between items-center text-sm">
                     <span className="text-foreground font-medium">{s.title}</span>
                     <span className="text-muted">{s.price}€</span>
                 </div>
