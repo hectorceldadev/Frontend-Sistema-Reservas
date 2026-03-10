@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { fromZonedTime } from "date-fns-tz"
 import { email } from "zod";
+import { SITE_CONFIG } from "@/config";
 
 // Helper para convertir hora a minutos
 const timeToMins = (time: string) => {
@@ -254,38 +255,40 @@ export async function POST (request: Request) {
         }
 
         // 10. NOTIFICACIONES (Async sin await para no bloquear respuesta)
-        if (paymentMethod !== 'card') {
+        
+        if (paymentMethod !== 'card' && client.email) {
+            const DASHBOARD_URL = process.env.DASHBOARD_URL || 'http://localhost:3001'
+            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
             const serviceNames = dbServices.map(s => s.title)
             const staffName = newBooking.staff?.full_name || 'El equipo'
             const formattedDate = format(startTimeUtc, "EEEE d 'de' MMMM", { locale: es })
-            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-            // Lanzamos fetch sin await
-            Promise.allSettled([
-                fetch(`${appUrl}/api/emails`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        customerName: client.name, 
-                        email: client.email, 
-                        date: format(new Date(bookingDate), 'dd/MM/yyyy'), 
-                        time: bookingTime, 
-                        services: serviceNames, 
-                        price: safeTotalPrice, 
-                        staffName: staffName,
-                    })
-                }),
-                fetch(`${appUrl}/api/notifications/send`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        email: client.email,
-                        title: '✅ ¡Reserva Confirmada!',
-                        message: `Hola ${client.name}, tu cita es el ${formattedDate} a las ${bookingTime}`,
-                        url: `${appUrl}/reserva`
-                    })
+            const localName = SITE_CONFIG.supabaseData.name
+            const localAddress = SITE_CONFIG.supabaseData.address
+            const localLogo = SITE_CONFIG.supabaseData.logo
+
+            fetch(`${DASHBOARD_URL}/api/notifications/dispatch`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.API_SECRET_KEY}`
+                },
+                body: JSON.stringify({
+                    type: 'booking_confirmation',
+                    email: client.email,
+                    customerName: client.name,
+                    date: formattedDate,
+                    time: bookingTime,
+                    services: serviceNames,
+                    totalPrice: safeTotalPrice,
+                    staffName: staffName,
+                    businessName: localName,
+                    businessAddress: localAddress,
+                    logoUrl: localLogo,
+                    appUrl: appUrl
                 })
-            ]).catch(err => console.error('Error notificaciones:', err))
+            }).catch(error => console.error('Error enviando ping al Dahsboard: ', error))
         }
 
         return NextResponse.json({

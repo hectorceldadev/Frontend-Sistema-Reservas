@@ -1,6 +1,9 @@
 export interface SiteConfig {
     supabaseData: {
         businessId: string
+        name: string
+        address: string
+        logo: string
     }
     metadataInfo: {
         title: {
@@ -227,7 +230,10 @@ export interface SiteConfig {
 
 export const SITE_CONFIG: SiteConfig = {
     supabaseData: {
-        businessId: 'b0880124-97ad-4560-8542-fbc31ff46a8f'
+        businessId: 'b0880124-97ad-4560-8542-fbc31ff46a8f',
+        name: 'Celda Barber',
+        address: 'Web Reservas Kupo',
+        logo: 'https://wvsvothaayzozwweqotd.supabase.co/storage/v1/object/public/businesses_media/b0880124-97ad-4560-8542-fbc31ff46a8f/logo.png'
     },
     metadataInfo: {
         title: {
