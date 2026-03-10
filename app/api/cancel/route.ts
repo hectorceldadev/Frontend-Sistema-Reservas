@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { es } from "date-fns/locale";
 import { NextResponse } from "next/server";
 
@@ -49,9 +50,11 @@ export async function POST (request: Request) {
             const localName = businessData.name 
             const localLogo = businessData.logo_url || ''
 
+            const TIMEZONE = 'Europe/Madrid'
+
             const startTimeDate = new Date(updatedBooking.start_time)
-            const timeString = format(startTimeDate, 'HH:mm')
-            const formattedDate = format(startTimeDate, "EEEE d 'de' MMMM", { locale: es })
+            const timeString = formatInTimeZone(startTimeDate, TIMEZONE, 'HH:mm')
+            const formattedDate = formatInTimeZone(startTimeDate, TIMEZONE, "EEEE d 'de' MMMM")
 
             fetch(`${DASHBOARD_URL}/api/notifications/dispatch`, {
                 method: 'POST',
