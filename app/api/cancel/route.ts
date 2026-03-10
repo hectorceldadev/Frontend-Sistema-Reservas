@@ -4,7 +4,7 @@ import { formatInTimeZone } from "date-fns-tz";
 import { es } from "date-fns/locale";
 import { NextResponse } from "next/server";
 
-export async function POST (request: Request) {
+export async function POST(request: Request) {
     try {
 
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -22,7 +22,7 @@ export async function POST (request: Request) {
 
         const { data: updatedBooking, error } = await supabaseAdmin
             .from('bookings')
-            .update({status: 'cancelled'})
+            .update({ status: 'cancelled' })
             .eq('customer_email', email)
             .eq('business_id', businessId)
             .eq('id', bookingId)
@@ -47,7 +47,7 @@ export async function POST (request: Request) {
             const DASHBOARD_URL = process.env.DASHBOARD_URL || 'http://localhost:3001'
 
             const businessData = Array.isArray(updatedBooking.businesses) ? updatedBooking.businesses[0] : updatedBooking.businesses
-            const localName = businessData.name 
+            const localName = businessData.name
             const localLogo = businessData.logo_url || ''
 
             const TIMEZONE = 'Europe/Madrid'
@@ -56,23 +56,28 @@ export async function POST (request: Request) {
             const timeString = formatInTimeZone(startTimeDate, TIMEZONE, 'HH:mm')
             const formattedDate = formatInTimeZone(startTimeDate, TIMEZONE, "yyyy-MM-dd")
 
-            fetch(`${DASHBOARD_URL}/api/notifications/dispatch`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${process.env.API_SECRET_KEY}`
-                },
-                body: JSON.stringify({
-                    type: 'booking_cancellation',
-                    email: updatedBooking.customer_email,
-                    customerName: updatedBooking.customer_name,
-                    date: formattedDate,
-                    time: timeString,
-                    businessName: localName,
-                    logoUrl: localLogo
+            try {
+                await fetch(`${DASHBOARD_URL}/api/notifications/dispatch`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${process.env.API_SECRET_KEY}`
+                    },
+                    body: JSON.stringify({
+                        type: 'booking_cancellation',
+                        email: updatedBooking.customer_email,
+                        customerName: updatedBooking.customer_name,
+                        date: formattedDate,
+                        time: timeString,
+                        businessName: localName,
+                        logoUrl: localLogo
+                    })
                 })
-            }).catch(error => console.error('Error delegando cancelación al Dashboard: ', error))
-        }
+            } catch (error) {
+                console.error('Error delegando cancelación al Dashboard:', error)
+            }
+
+            }
 
         return NextResponse.json({ success: true })
     } catch (error) {

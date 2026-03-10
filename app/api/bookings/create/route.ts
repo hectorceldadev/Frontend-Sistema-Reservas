@@ -268,27 +268,32 @@ export async function POST (request: Request) {
             const localAddress = SITE_CONFIG.supabaseData.address
             const localLogo = SITE_CONFIG.supabaseData.logo
 
-            fetch(`${DASHBOARD_URL}/api/notifications/dispatch`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${process.env.API_SECRET_KEY}`
-                },
-                body: JSON.stringify({
-                    type: 'booking_confirmation',
-                    email: client.email,
-                    customerName: client.name,
-                    date: formattedDate,
-                    time: bookingTime,
-                    services: serviceNames,
-                    totalPrice: safeTotalPrice,
-                    staffName: staffName,
-                    businessName: localName,
-                    businessAddress: localAddress,
-                    logoUrl: localLogo,
-                    appUrl: appUrl
+            try {
+                await fetch(`${DASHBOARD_URL}/api/notifications/dispatch`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${process.env.API_SECRET_KEY}`
+                    },
+                    body: JSON.stringify({
+                        type: 'booking_confirmation',
+                        email: client.email,
+                        customerName: client.name,
+                        date: formattedDate,
+                        time: bookingTime,
+                        services: serviceNames,
+                        totalPrice: safeTotalPrice,
+                        staffName: staffName,
+                        businessName: localName,
+                        businessAddress: localAddress,
+                        logoUrl: localLogo,
+                        appUrl: appUrl
+                    })
                 })
-            }).catch(error => console.error('Error enviando ping al Dahsboard: ', error))
+
+            } catch (error) {
+                console.error('Error enviando ping al Dahsboard: ', error)
+            }
         }
 
         return NextResponse.json({
