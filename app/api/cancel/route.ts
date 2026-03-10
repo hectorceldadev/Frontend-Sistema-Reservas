@@ -54,7 +54,7 @@ export async function POST (request: Request) {
 
             const startTimeDate = new Date(updatedBooking.start_time)
             const timeString = formatInTimeZone(startTimeDate, TIMEZONE, 'HH:mm')
-            const formattedDate = formatInTimeZone(startTimeDate, TIMEZONE, "EEEE d 'de' MMMM")
+            const formattedDate = formatInTimeZone(startTimeDate, TIMEZONE, "yyyy-MM-dd")
 
             fetch(`${DASHBOARD_URL}/api/notifications/dispatch`, {
                 method: 'POST',
