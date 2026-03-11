@@ -174,7 +174,6 @@ export default function MyBookingsPage() {
             </div>
 
             <div className="max-w-md mx-auto px-5 space-y-8 mt-6 stagger-container">
-
                 {/* BUSCADOR */}
                 <div className="relative group">
                     <div className="relative bg-background-secondary p-1.5 rounded-2xl shadow-sm border border-foreground/10 flex items-center focus-within:ring-2 focus-within:ring-primary/20 transition-all">

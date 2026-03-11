@@ -28,6 +28,16 @@ export function usePWA() {
     // Verificamos que estamos en el navegador para evitar errores en servidor
     if (typeof window === 'undefined') return;
 
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then((registration) => {
+          console.log('✅ Service Worker registrado con éxito:', registration.scope)
+        })
+        .catch((error) => {
+          console.error('❌ Error al registrar el Service Worker:', error);
+        });
+    }
+
     // --- DETECTAR IOS ---
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIosDevice = /iphone|ipad|ipod/.test(userAgent);

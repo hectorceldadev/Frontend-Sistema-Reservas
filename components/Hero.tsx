@@ -46,7 +46,7 @@ const Hero = ({ business }: HeroTypes) => {
 
                         {/* Badge / Ubicación */}
                         <div className="flex justify-start">
-                            <div className={`inline-flex items-center gap-2 px-3 py-1 mb-6 rounded-full border ${design.background === 'salon-de-belleza' ? 'border-primary/60 bg-primary/5 text-primary' : 'border-primary/30 bg-primary/10 text-primary-light'}  text-[10px] sm:text-xs font-bold tracking-widest uppercase`}>
+                            <div className={`inline-flex items-center gap-2 px-3 py-1 mb-6 rounded-full border ${design.background === 'salon-de-belleza' ? 'border-primary/60 bg-primary/5 text-primary' : 'border-primary/30 bg-primary/10 text-primary'}  text-[10px] sm:text-xs font-bold tracking-widest uppercase`}>
                                 <MapPin size={12} className="text-primary" />
                                 {hero.badge}
                             </div>

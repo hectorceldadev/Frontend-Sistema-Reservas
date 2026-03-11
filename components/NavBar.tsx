@@ -9,6 +9,7 @@ import { SITE_CONFIG } from '@/config'
 import { BusinessDB, ServiceDB } from '@/lib/types/databaseTypes'
 import { useBooking } from '@/context/BookingContext'
 import Image from 'next/image'
+import { usePWA } from '@/hooks/usePWA'
 
 // 2. Definimos que este objeto tiene claves string y valores LucideIcon
 const iconMap: Record<string, LucideIcon> = {
@@ -30,6 +31,7 @@ export default function Navbar({ services, business }: NavBarTypes) {
   const { navBar } = SITE_CONFIG;
 
   const { openModal } = useBooking()
+  usePWA()
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect

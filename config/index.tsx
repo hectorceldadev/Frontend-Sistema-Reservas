@@ -529,7 +529,7 @@ export const SITE_CONFIG: SiteConfig = {
         businessMap: 'https://maps.app.goo.gl/kWwce1bHwBw7QzcJA'
     },
     design: {
-        background: 'WaveBackground',
+        background: 'barberia-urbana',
         paleta: 'blue',
         typography: 'barberiaUrbana'
     }
