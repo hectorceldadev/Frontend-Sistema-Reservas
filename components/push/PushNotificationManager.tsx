@@ -5,7 +5,7 @@ import { usePWA } from '@/hooks/usePWA';
 import { urlBase64ToUint8Array } from '@/utils/push';
 import { toast } from 'sonner'; 
 import { Booking } from '../booking/BookingModal';
-import { BellRing, PlusSquare, Share, X } from 'lucide-react';
+import { BellRing, ChevronDown, PlusSquare, Share, X } from 'lucide-react';
 import { SITE_CONFIG } from '@/config';
 
 interface PushManagerProps {
@@ -129,15 +129,21 @@ export default function PushNotificationManager({ customerId, email, asModal = f
               </div>
               <div className="flex items-center gap-3 text-sm text-foreground font-medium">
                 <div className="bg-background p-2 rounded-lg shadow-sm border border-foreground/5 text-primary">
+                  <ChevronDown size={18} />
+                </div>
+                <span>2. Toca en el icono de <b>Ver más.</b></span>
+              </div>
+              <div className="flex items-center gap-3 text-sm text-foreground font-medium">
+                <div className="bg-background p-2 rounded-lg shadow-sm border border-foreground/5 text-primary">
                   <PlusSquare size={18} />
                 </div>
-                <span>2. Dale a <b>Añadir a inicio</b>.</span>
+                <span>3. Dale a <b>Añadir a inicio</b>.</span>
               </div>
               <div className="flex items-center gap-3 text-sm text-foreground font-medium">
                 <div className="bg-background p-2 rounded-lg shadow-sm border border-foreground/5 text-primary">
                   <BellRing size={18} />
                 </div>
-                <span>3. Abre la App, ve a reserva, introduce tu email en el buscador y pulsa <b>Activar Recordatorios</b>.</span>
+                <span>4. Abre la App, ve a reserva, introduce tu email en el buscador y pulsa <b>Activar Recordatorios</b>.</span>
               </div>
             </div>
 
