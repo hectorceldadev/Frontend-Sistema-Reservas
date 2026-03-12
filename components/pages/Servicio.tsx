@@ -52,7 +52,7 @@ export const Servicio = ({ service, relatedServices }: ServivioTypes) => {
                             <span className="text-2xl font-bold text-primary font-title">
                                 {service.price}€
                             </span>
-                            <span className="px-3 py-1 rounded-full border border-foreground text-muted text-xs font-bold uppercase tracking-wide">
+                            <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary text-primary text-xs font-bold uppercase tracking-wide">
                                 Duración Aprox. {service.duration} min
                             </span>
                         </div>
