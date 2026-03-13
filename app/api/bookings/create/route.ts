@@ -185,7 +185,7 @@ export async function POST (request: Request) {
             .eq('staff_id', assignedStaffId)
             .eq('date', bookingDate)
             .neq('status', 'cancelled')
-            .neq('starus', 'rejected')
+            .neq('status', 'rejected')
 
         const isBooked = (lastSecondBookings || []).some(booking => {
             const bStart = new Date(booking.start_time)
