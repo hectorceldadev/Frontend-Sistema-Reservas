@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import { X, CalendarDays, ChevronLeft, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns'
-import { toast } from 'sonner';
 
 // IMPORTS DE LOS PASOS
 import StepService from './StepService';
@@ -17,6 +16,7 @@ import { ServiceDB } from '@/lib/types/databaseTypes';
 import { useBooking } from '@/context/BookingContext';
 import { SITE_CONFIG } from '@/config';
 import { clientFormSchema } from '@/lib/schemas';
+import { sileo } from 'sileo';
 
 // --- INTERFACES (Sin cambios) ---
 export interface Booking {
@@ -181,7 +181,7 @@ export default function BookingModal({ services }: BookingModalTypes) {
         }
       } catch (err) {
           console.error(err);
-          toast.error('Error cargando profesionales');
+          sileo.error({title: 'Error cargando profesionales'});
       } finally {
         setIsLoading(false)
       }
@@ -250,14 +250,14 @@ export default function BookingModal({ services }: BookingModalTypes) {
         localStorage.setItem('customerId', data.customerId)
       }
       if (booking.paymentMethod === 'card') {
-        toast.info('Redirigiendo a Stripe...')
+        sileo.info({title: 'Redirigiendo a Stripe...'})
       } else {
-        toast.success('¡Reserva confirmada correctamente!')
+        sileo.success({title: '¡Reserva confirmada correctamente!'})
         setStep(6)
       }
     } catch (err) {
       console.error(err)
-      toast.error('Error al procesar la reserva: ' + err)
+      sileo.error({title: 'Error al procesar la reserva: ' + err})
     } finally {
       setIsLoading(false)
     } 

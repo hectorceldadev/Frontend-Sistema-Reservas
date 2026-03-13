@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Search, Calendar, Clock, MapPin, History, ArrowRight, User, ChevronLeft, Loader2, X, AlertTriangle, CheckCircle2, Scissors, LocateIcon, CalendarDays } from 'lucide-react';
+import { Search, Calendar, Clock, MapPin, History, ArrowRight, User, ChevronLeft, Loader2, X, AlertTriangle, CheckCircle2, Scissors, LocateIcon, CalendarDays, LoaderCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import Link from 'next/link';
-import { toast } from 'sonner';
 import { useBooking } from '@/context/BookingContext';
 import { SITE_CONFIG } from '@/config';
 import { emailSearchSchema } from '@/lib/schemas';
 import PushNotificationManager from '@/components/push/PushNotificationManager';
+import { sileo } from 'sileo';
 
 // Interfaz
 interface BookingHistoryItem {
@@ -57,7 +57,7 @@ export default function MyBookingsPage() {
             localStorage.setItem('booking_client_info', JSON.stringify({ email: emailToSearch }))
         } catch (error) {
             console.error(error)
-            toast.error('No se pudieron cargar las citas')
+            sileo.error({title: 'No se pudieron cargar las citas'})
         } finally {
             setLoading(false)
         }
@@ -108,14 +108,14 @@ export default function MyBookingsPage() {
 
         if (!result.success) {
             // Mostramos el mensaje de error que definimos en schemas.ts
-            toast.error(result.error.issues[0].message);
+            sileo.error({ title: result.error.issues[0].message});
             return;
         }
 
         // Si pasa la validación, buscamos
         executeSearch(email);
         fetchCustomerId(email)
-        toast.success('Buscando citas...');
+        sileo.success({title: 'Buscando citas...'});
     };
 
     const handleCancelBooking = async (bookingId: string) => {
@@ -124,9 +124,10 @@ export default function MyBookingsPage() {
             b.id === bookingId ? { ...b, status: 'cancelled' } : b
         );
         setBookings(updatedBookings);
-        setSelectedBooking(null);
+        
 
         try {
+            setLoading(true)
             const response = await fetch('/api/cancel', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -134,13 +135,25 @@ export default function MyBookingsPage() {
             })
 
             const data = await response.json()
-            if (!response.ok) throw new Error(data.error || 'Error al cancelar')
-            toast.success('Reserva cancelada correctamente');
+            if (data.error) {
+                sileo.error({
+                    title: data.error
+                })
+                setLoading(false)
+                return
+            } 
+            if (data.success) {
+                sileo.success({ title: 'Reserva cancelada correctamente' })
+                setLoading(false)
+                setSelectedBooking(null);
+                return
+            }
         } catch (error) {
             console.error(error)
             setBookings(previousBookings)
-            toast.error('Hubo un problema al cancelar la reserva')
-        }
+            sileo.error({ title: 'Hubo un problema al cancelar la reserva' })  
+                setLoading(false)      
+        } 
     };
 
     // Ordenar: Próximas primero
@@ -287,6 +300,7 @@ export default function MyBookingsPage() {
             {selectedBooking && (
                 <BookingDetailsModal
                     booking={selectedBooking}
+                    loading={loading}
                     onClose={() => setSelectedBooking(null)}
                     onCancel={handleCancelBooking}
                 />
@@ -400,7 +414,7 @@ function TicketCard({ booking, isPast = false, onClick }: { booking: BookingHist
     );
 }
 
-function BookingDetailsModal({ booking, onClose, onCancel }: { booking: BookingHistoryItem, onClose: () => void, onCancel: (id: string) => void }) {
+function BookingDetailsModal({ booking, onClose, onCancel, loading }: { booking: BookingHistoryItem, onClose: () => void, onCancel: (id: string) => void, loading: boolean }) {
     const isCancellable = booking.status !== 'cancelled' && booking.status !== 'completed';
 
     const statusConfig = {
@@ -497,10 +511,11 @@ function BookingDetailsModal({ booking, onClose, onCancel }: { booking: BookingH
                     <div className="mt-auto">
                         {isCancellable &&
                             <button
+                                disabled={loading}
                                 onClick={() => onCancel(booking.id)}
                                 className="w-full py-3.5 rounded-xl font-bold text-red-600 bg-red-500/5 hover:bg-red-500/10 border border-red-500 transition-colors flex items-center justify-center gap-2"
                             >
-                                <AlertTriangle size={16} /> Cancelar Reserva
+                                {loading ? <span className='flex items-center gap-2'><LoaderCircle size={16} className='animate-spin' /> Cancelando...</span> : <span className='flex items-center gap-2'><AlertTriangle size={16} /> Cancelar Reserva</span> } 
                             </button>
                         }
                     </div>

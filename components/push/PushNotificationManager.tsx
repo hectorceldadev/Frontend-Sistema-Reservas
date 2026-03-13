@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import { usePWA } from '@/hooks/usePWA';
 import { urlBase64ToUint8Array } from '@/utils/push';
-import { toast } from 'sonner'; 
 import { Booking } from '../booking/BookingModal';
 import { BellRing, ChevronDown, PlusSquare, Share, X } from 'lucide-react';
 import { SITE_CONFIG } from '@/config';
+import { sileo } from 'sileo';
 
 interface PushManagerProps {
   customerId: string;
@@ -43,7 +43,7 @@ export default function PushNotificationManager({ customerId, email, asModal = f
   // 2. Lógica de Suscripción + Notificación Inmediata
   const subscribeUser = async () => {
     if (!('serviceWorker' in navigator)) {
-        toast.error('Tu navegador no soporta notificaciones push.');
+        sileo.error({title: 'Tu navegador no soporta notificaciones push.'});
         return;
     }
 
@@ -86,15 +86,15 @@ export default function PushNotificationManager({ customerId, email, asModal = f
       });
 
       setIsSubscribed(true);
-      toast.success('¡Recordatorios activados!');
+      sileo.success({title: '¡Recordatorios activados!'});
       setShowMainModal(false)
 
     } catch (error: any) {
       console.error('Error Push:', error);
       if (error.name === 'NotAllowedError') {
-        toast.error('Has bloqueado las notificaciones. Revísalo en ajustes.');
+        sileo.error({title: 'Has bloqueado las notificaciones. Revísalo en ajustes.'});
       } else {
-        toast.error('Error al activar notificaciones.');
+        sileo.error({title: 'Error al activar notificaciones.'});
         console.log(error)
       }
     } finally {

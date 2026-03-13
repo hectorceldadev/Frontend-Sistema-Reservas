@@ -4,7 +4,7 @@ import { Anton, Geist, Lato, Open_Sans, Oswald, Playfair_Display } from "next/fo
 import { SITE_CONFIG } from "@/config";
 import { Metadata, Viewport } from "next";
 import JsonLd from "@/components/schema/JsonLd";
-import { Toaster } from "sonner"
+import { Toaster } from "sileo"
 import { BookingProvider } from "@/context/BookingContext";
 import BookingModal from "@/components/booking/BookingModal";
 import { getServices } from "@/lib/data";
@@ -109,9 +109,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <SpeedInsights />
         <BookingProvider>
           <BackgroundSelector >
+            <div className="relative z-9999">
+            <Toaster 
+              options={{
+                  fill: "black",
+                  styles: {
+                      title: 'text-white font-bold',
+                      description: 'text-white',
+                  },
+                  position: 'top-center'
+              }}
+            />
+          </div>
             {children}
             <BookingModal services={services} />
-            <Toaster />
           </BackgroundSelector>
         </BookingProvider>
       </body>

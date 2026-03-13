@@ -9,7 +9,7 @@ import { AlertCircle, Clock, Loader2 } from "lucide-react"
 import { useRef, useEffect, useState } from "react"
 import { Booking } from "./BookingModal"
 import { SITE_CONFIG } from "@/config"
-import { toast } from "sonner"
+import { sileo } from "sileo"
 
 interface StepDateProps {
     booking: Booking;
@@ -60,7 +60,7 @@ const StepDate = ({ booking, setBooking }: StepDateProps) => {
             } catch (error) {
                 console.error(error)
                 setError('No pudimos cargar los horarios. Intentalo de nuevo')
-                toast.error('Error de conexión al buscar los horarios')
+                sileo.error({title: 'Error de conexión al buscar los horarios'})
             } finally {
                 setIsLoading(false)
             }
