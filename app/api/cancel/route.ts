@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 import { es } from "date-fns/locale";
 import { NextResponse } from "next/server";
+import { clientFormSchema } from '../../../lib/schemas';
 
 export async function POST(request: Request) {
     try {
@@ -31,6 +32,7 @@ export async function POST(request: Request) {
                 start_time,
                 customer_name,
                 customer_email,
+                staff_id,
                 businesses (
                     name,
                     logo_url
@@ -56,8 +58,17 @@ export async function POST(request: Request) {
             const timeString = formatInTimeZone(startTimeDate, TIMEZONE, 'HH:mm')
             const formattedDate = formatInTimeZone(startTimeDate, TIMEZONE, "yyyy-MM-dd")
 
+            const { data: staffProfile } = await supabaseAdmin
+                .from('profiles')
+                .select('email')
+                .eq('business_id', businessId)
+                .eq('id', updatedBooking.staff_id)
+                .single()
+
+            const staffEmail = staffProfile?.email
+
             try {
-                await fetch(`${DASHBOARD_URL}/api/notifications/dispatch`, {
+                await fetch(`${DASHBOARD_URL}/api/notifications/dispatch/frontend`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -71,6 +82,23 @@ export async function POST(request: Request) {
                         time: timeString,
                         businessName: localName,
                         logoUrl: localLogo
+                    })
+                })
+
+                await fetch(`${DASHBOARD_URL}/api/notifications/dispatch/dashboard`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${process.env.API_SECRET_KEY}`
+                    },
+                    body: JSON.stringify({
+                        type: 'staff_booking_cancelled', // <--- El tipo de cancelación del Dashboard
+                            email: staffEmail,               // <--- El correo del profesional
+                            customerName: updatedBooking.customer_name,
+                            date: formattedDate,
+                            time: timeString,
+                            businessName: localName,
+                            logoUrl: localLogo
                     })
                 })
             } catch (error) {

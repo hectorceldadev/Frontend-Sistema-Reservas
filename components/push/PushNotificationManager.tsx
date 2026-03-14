@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { usePWA } from '@/hooks/usePWA';
 import { urlBase64ToUint8Array } from '@/utils/push';
-import { Booking } from '../booking/BookingModal';
 import { BellRing, ChevronDown, PlusSquare, Share, X } from 'lucide-react';
 import { SITE_CONFIG } from '@/config';
 import { sileo } from 'sileo';
@@ -72,18 +71,6 @@ export default function PushNotificationManager({ customerId, email, asModal = f
       });
 
       if (!response.ok) throw new Error('Error al guardar suscripción');
-
-      // B. Enviar "Reserva Confirmada" al instante
-      await fetch('/api/notifications/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          title: '✅ ¡Reserva Confirmada!',
-          message: 'Gracias por activar los avisos. Te recordaremos tu cita por aquí.',
-          url: `${window.location.origin}/reserva`
-        })
-      });
 
       setIsSubscribed(true);
       sileo.success({title: '¡Recordatorios activados!'});

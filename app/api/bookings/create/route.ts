@@ -268,8 +268,17 @@ export async function POST (request: Request) {
             const localAddress = SITE_CONFIG.supabaseData.address
             const localLogo = SITE_CONFIG.supabaseData.logo
 
+            const { data: staffProfile } = await supabaseAdmin
+                .from('profiles')
+                .select('email')
+                .eq('id', assignedStaffId)
+                .eq('business_id', businessId)
+                .single()
+
+            const staffEmail = staffProfile?.email
+
             try {
-                await fetch(`${DASHBOARD_URL}/api/notifications/dispatch`, {
+                await fetch(`${DASHBOARD_URL}/api/notifications/dispatch/frontend`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -290,6 +299,30 @@ export async function POST (request: Request) {
                         appUrl: appUrl
                     })
                 })
+
+                if (staffEmail) {
+                    await fetch(`${DASHBOARD_URL}/api/notifications/dispatch/dashboard`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${process.env.API_SECRET_KEY}`
+                        },
+                        body: JSON.stringify({
+                            type: 'staff_new_booking', 
+                            email: staffEmail,         
+                            customerName: client.name,
+                            date: formattedDate,
+                            time: bookingTime,
+                            services: serviceNames,
+                            totalPrice: safeTotalPrice,
+                            staffName: staffName,
+                            businessName: localName,
+                            businessAddress: localAddress,
+                            logoUrl: localLogo,
+                            appUrl: appUrl
+                        })
+                    })
+                }
 
             } catch (error) {
                 console.error('Error enviando ping al Dahsboard: ', error)
