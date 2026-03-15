@@ -56,7 +56,7 @@ export async function POST(request: Request) {
 
             const startTimeDate = new Date(updatedBooking.start_time)
             const timeString = formatInTimeZone(startTimeDate, TIMEZONE, 'HH:mm')
-            const formattedDate = formatInTimeZone(startTimeDate, TIMEZONE, "yyyy-MM-dd")
+            const formattedDate = formatInTimeZone(startTimeDate, TIMEZONE, "EEEE d 'de' MMMM", { locale: es })
 
             const { data: staffProfile } = await supabaseAdmin
                 .from('profiles')
