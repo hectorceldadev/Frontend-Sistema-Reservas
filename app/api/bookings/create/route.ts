@@ -4,8 +4,19 @@ import { ServiceDB } from '../../../../lib/types/databaseTypes';
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { fromZonedTime } from "date-fns-tz"
-import { email } from "zod";
 import { SITE_CONFIG } from "@/config";
+import { Redis } from "@upstash/redis"
+import { Ratelimit } from "@upstash/ratelimit"
+
+const redis = new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN
+})
+
+const rateLimit = new Ratelimit({
+    redis: redis,
+    limiter: Ratelimit.slidingWindow(5, '5m')
+})
 
 // Helper para convertir hora a minutos
 const timeToMins = (time: string) => {
@@ -14,6 +25,17 @@ const timeToMins = (time: string) => {
 }
 
 export async function POST (request: Request) {
+
+    const ip = request.headers.get('x-forwarded-for') ?? "127.0.0.1"
+
+    const { success } = await rateLimit.limit(`public_booking_${ip}`)
+
+    if (!success) {
+        return NextResponse.json(
+            { error: 'Has realizado demasiadas peticiones. Por favor, espera unos minutos.', status: 429 }
+        )
+    }
+
     try {
         // 1. INICIALIZACIÓN SEGURA (DENTRO DEL TRY)
         // Así capturamos si fallan las keys
