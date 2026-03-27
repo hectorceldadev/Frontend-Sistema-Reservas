@@ -302,6 +302,7 @@ export async function POST (request: Request) {
             const DASHBOARD_URL = 'https://kupo.es'; 
             const urlDestino = `${DASHBOARD_URL}/api/notifications/dispatch/frontend`;
 
+            console.log(`🔑 Estado de la llave secreta en Frontend: ${process.env.API_SECRET_KEY ? '¡Cargada correctamente!' : '⚠️ VACÍA O NO DEFINIDA'}`);
             console.log(`🚀 [Frontend] Pidiendo al Dashboard que envíe correo a: ${client.email}`);
 
             try {
