@@ -279,7 +279,7 @@ export async function POST (request: Request) {
         // 10. NOTIFICACIONES (Async sin await para no bloquear respuesta)
         
         if (paymentMethod !== 'card' && client.email) {
-            const DASHBOARD_URL = process.env.DASHBOARD_URL || 'http://localhost:3001'
+            
             const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
             const serviceNames = dbServices.map(s => s.title)
@@ -299,8 +299,13 @@ export async function POST (request: Request) {
 
             const staffEmail = staffProfile?.email
 
+            const DASHBOARD_URL = 'https://kupo.es'; 
+            const urlDestino = `${DASHBOARD_URL}/api/notifications/dispatch/frontend`;
+
+            console.log(`🚀 [Frontend] Pidiendo al Dashboard que envíe correo a: ${client.email}`);
+
             try {
-                await fetch(`${DASHBOARD_URL}/api/notifications/dispatch/frontend`, {
+                const response = await fetch(urlDestino, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -321,6 +326,13 @@ export async function POST (request: Request) {
                         appUrl: appUrl
                     })
                 })
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`💥 ERROR: El Dashboard ha rechazado la orden (${response.status}):`, errorText);
+                } else {
+                    console.log('✅ El Dashboard ha recibido la orden de correo perfectamente');
+                }
 
                 if (staffEmail) {
                     await fetch(`${DASHBOARD_URL}/api/notifications/dispatch/dashboard`, {
