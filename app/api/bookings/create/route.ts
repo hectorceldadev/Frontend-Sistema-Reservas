@@ -7,6 +7,7 @@ import { fromZonedTime } from "date-fns-tz"
 import { SITE_CONFIG } from "@/config";
 import { Redis } from "@upstash/redis"
 import { Ratelimit } from "@upstash/ratelimit"
+import { headers } from "next/headers";
 
 const redis = new Redis({
     url: process.env.UPSTASH_REDIS_REST_URL,
@@ -280,7 +281,10 @@ export async function POST (request: Request) {
         
         if (paymentMethod !== 'card' && client.email) {
             
-            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+            const headersList = await headers()
+            const host = headersList.get('host') 
+            const protocol = host?.includes('localhost') ? 'http' : 'https'
+            const appUrl = `${protocol}://${host}/reserva`
 
             const serviceNames = dbServices.map(s => s.title)
             const staffName = newBooking.staff?.full_name || 'El equipo'

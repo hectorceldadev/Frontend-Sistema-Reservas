@@ -46,8 +46,6 @@ export async function POST(request: Request) {
         }
 
         if (updatedBooking && updatedBooking.customer_email) {
-            const DASHBOARD_URL = process.env.DASHBOARD_URL || 'http://localhost:3001'
-
             const businessData = Array.isArray(updatedBooking.businesses) ? updatedBooking.businesses[0] : updatedBooking.businesses
             const localName = businessData.name
             const localLogo = businessData.logo_url || ''
@@ -66,6 +64,8 @@ export async function POST(request: Request) {
                 .single()
 
             const staffEmail = staffProfile?.email
+
+            const DASHBOARD_URL = 'https://www.kupo.es'; 
 
             try {
                 await fetch(`${DASHBOARD_URL}/api/notifications/dispatch/frontend`, {
