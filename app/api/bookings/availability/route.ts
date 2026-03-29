@@ -78,6 +78,12 @@ export async function GET (request: Request) {
             .in('staff_id', workingStaffIds)
             .eq('status', 'active')
 
+        const { data: interval } = await supabaseAdmin
+            .from('businesses')
+            .select('slot_interval')
+            .eq('id', businessId)
+            .single()
+
         const nowUtc = new Date()
         const nowInMadrid = toZonedTime(nowUtc, TIMEZONE)
 
@@ -88,7 +94,7 @@ export async function GET (request: Request) {
         const currentMinsOfDay = (nowInMadrid.getHours() * 60 + nowInMadrid.getMinutes()) + bufferMins 
 
         const slotsSet = new Set<string>()
-        const INTERVAL = 30
+        const INTERVAL = interval?.slot_interval ? interval.slot_interval : 15
 
         schedules.forEach(schedule => {
             const shiftStart = timeToMins(schedule.start_time)
