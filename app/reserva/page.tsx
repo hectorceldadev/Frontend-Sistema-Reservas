@@ -64,6 +64,15 @@ export default function MyBookingsPage() {
     }, [])
 
     useEffect(() => {
+        if (selectedBooking) {
+            document.body.style.overflow = 'hidden'
+        }
+        if (!selectedBooking) {
+            document.body.style.overflow = 'unset'
+        }
+    }, [selectedBooking])
+
+    useEffect(() => {
         if (typeof window !== 'undefined') {
             const savedData = localStorage.getItem('booking_client_info');
             if (savedData) {
